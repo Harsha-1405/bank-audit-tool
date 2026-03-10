@@ -1,0 +1,2124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compliance Manager — CA Firm</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0f1f3d; --navy2: #1a3260; --navy3: #243f7a;
+  --accent: #c8973a; --accent2: #e8b45a;
+  --bg: #f0f2f7; --card: #ffffff; --text: #1a2340; --muted: #6b7a99;
+  --border: #dde3f0; --filed: #0d6efd; --paid: #198754;
+  --pending: #e0a800; --inprogress: #fd7e14; --na: #6c757d;
+  --shadow: 0 4px 24px rgba(15,31,61,0.10); --radius: 14px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ============ LOGIN SCREEN ============ */
+#loginScreen {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 50%, #1e3a5f 100%);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.login-box {
+  background: white; border-radius: 20px; padding: 48px 44px;
+  width: 100%; max-width: 440px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+  animation: loginIn 0.4s ease;
+}
+@keyframes loginIn { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+.login-logo { font-family: 'DM Serif Display', serif; font-size: 2em; color: var(--navy); text-align: center; margin-bottom: 4px; }
+.login-logo span { color: var(--accent); }
+.login-sub { text-align: center; color: var(--muted); font-size: 0.88em; margin-bottom: 36px; }
+
+.login-user-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
+.login-user-btn {
+  border: 2px solid var(--border); border-radius: 12px; padding: 16px 10px;
+  cursor: pointer; text-align: center; transition: all 0.2s; background: white;
+  font-family: 'DM Sans', sans-serif;
+}
+.login-user-btn:hover { border-color: var(--navy); background: #f5f7ff; transform: translateY(-2px); }
+.login-user-btn.selected { border-color: var(--navy); background: var(--navy); color: white; }
+.login-user-avatar {
+  width: 48px; height: 48px; border-radius: 50%; margin: 0 auto 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3em; font-weight: 700;
+}
+.login-user-btn.selected .login-user-avatar { background: rgba(255,255,255,0.2); color: white; }
+.login-user-name { font-weight: 600; font-size: 0.88em; }
+.login-user-role { font-size: 0.73em; opacity: 0.7; margin-top: 2px; }
+
+.login-field-label { font-weight: 600; font-size: 0.82em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: block; }
+.login-input {
+  width: 100%; padding: 13px 16px; border: 2px solid var(--border);
+  border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 1em;
+  outline: none; transition: border 0.2s; margin-bottom: 16px;
+}
+.login-input:focus { border-color: var(--navy); }
+.login-btn {
+  width: 100%; padding: 14px; background: var(--navy); color: white;
+  border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif;
+  font-size: 1em; font-weight: 700; cursor: pointer; transition: all 0.2s;
+}
+.login-btn:hover { background: var(--navy2); transform: translateY(-1px); }
+.login-error { color: #e74c3c; font-size: 0.85em; text-align: center; margin-top: 10px; min-height: 20px; }
+
+/* ============ APP SCREEN ============ */
+#appScreen { display: none; }
+
+.topbar {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 60%, var(--navy3) 100%);
+  color: white; padding: 0 36px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 68px; box-shadow: 0 4px 20px rgba(15,31,61,0.25);
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-logo { font-family: 'DM Serif Display', serif; font-size: 1.4em; letter-spacing: 0.5px; }
+.topbar-logo span { color: var(--accent2); }
+.topbar-sub { font-size: 0.78em; opacity: 0.6; margin-top: 2px; }
+.topbar-right { display: flex; align-items: center; gap: 14px; }
+.user-chip {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.12); border-radius: 30px;
+  padding: 6px 14px 6px 8px; font-size: 0.88em; font-weight: 600;
+}
+.user-chip-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75em; font-weight: 800;
+}
+
+.nav-tabs { display: flex; gap: 4px; background: rgba(255,255,255,0.08); border-radius: 10px; padding: 5px; }
+.nav-tab {
+  padding: 8px 22px; border-radius: 7px; color: rgba(255,255,255,0.7);
+  font-weight: 500; font-size: 0.9em; cursor: pointer; transition: all 0.2s;
+  border: none; background: transparent; letter-spacing: 0.3px;
+}
+.nav-tab:hover { color: white; background: rgba(255,255,255,0.12); }
+.nav-tab.active { background: var(--accent); color: var(--navy); font-weight: 700; }
+
+.main { padding: 32px 36px; max-width: 1500px; margin: auto; }
+.page { display: none; }
+.page.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 14px; }
+.page-title { font-family: 'DM Serif Display', serif; font-size: 1.8em; color: var(--navy); }
+.page-title span { color: var(--accent); }
+
+.btn {
+  padding: 9px 20px; border-radius: 8px; border: none;
+  font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.88em;
+  cursor: pointer; transition: all 0.18s; display: inline-flex; align-items: center; gap: 6px;
+}
+.btn-primary { background: var(--navy); color: white; }
+.btn-primary:hover { background: var(--navy2); transform: translateY(-1px); }
+.btn-accent { background: var(--accent); color: var(--navy); }
+.btn-accent:hover { background: var(--accent2); }
+.btn-danger { background: #e74c3c; color: white; }
+.btn-danger:hover { background: #c0392b; }
+.btn-success { background: var(--paid); color: white; }
+.btn-success:hover { background: #157347; }
+.btn-sm { padding: 5px 12px; font-size: 0.8em; }
+.btn-outline { background: transparent; border: 2px solid var(--navy); color: var(--navy); }
+.btn-outline:hover { background: var(--navy); color: white; }
+.btn-ghost { background: rgba(255,255,255,0.15); border: none; color: white; padding: 7px 14px; border-radius: 8px; font-size: 0.85em; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; }
+.btn-ghost:hover { background: rgba(255,255,255,0.25); }
+
+.card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); }
+
+/* CLIENTS */
+.clients-toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.search-box { padding: 9px 16px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9em; width: 240px; outline: none; transition: border 0.2s; }
+.search-box:focus { border-color: var(--navy); }
+.clients-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 18px; margin-top: 20px; }
+.client-card { background: var(--card); border-radius: var(--radius); border: 1.5px solid var(--border); padding: 22px; cursor: pointer; transition: all 0.22s; box-shadow: 0 2px 10px rgba(15,31,61,0.06); position: relative; overflow: hidden; }
+.client-card::before { content:''; position: absolute; left:0; top:0; bottom:0; width:4px; border-radius:4px 0 0 4px; background: var(--navy3); }
+.client-card.inhouse::before { background: var(--paid); }
+.client-card.outsourced::before { background: var(--accent); }
+.client-card:hover { border-color: var(--navy); box-shadow: 0 8px 28px rgba(15,31,61,0.14); transform: translateY(-2px); }
+.client-card-name { font-family: 'DM Serif Display', serif; font-size: 1.05em; color: var(--navy); margin-bottom: 8px; line-height: 1.3; }
+.client-card-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.badge { padding: 3px 10px; border-radius: 20px; font-size: 0.75em; font-weight: 600; letter-spacing: 0.3px; }
+.badge-inhouse { background: #d4edda; color: #155724; }
+.badge-outsourced { background: #fff3cd; color: #856404; }
+.badge-resp { background: #e8eaf6; color: #3949ab; }
+.badge-compliance { background: #e3f2fd; color: #1565c0; font-size: 0.7em; }
+.badge-na-comp { background: #f5f5f5; color: #9e9e9e; font-size: 0.7em; }
+.client-card-compliances { display: flex; flex-wrap: wrap; gap: 5px; }
+.client-card-actions { position: absolute; top:14px; right:14px; display:flex; gap:6px; opacity:0; transition: opacity 0.2s; }
+.client-card:hover .client-card-actions { opacity: 1; }
+
+/* STATUS */
+.stats-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; margin-bottom: 28px; }
+@media(max-width:1100px) { .stats-row { grid-template-columns: repeat(4,1fr); } }
+@media(max-width:700px) { .stats-row { grid-template-columns: repeat(2,1fr); } }
+.stat-tile { background: var(--card); border-radius: var(--radius); padding: 18px; border: 1.5px solid var(--border); box-shadow: var(--shadow); }
+.stat-tile-label { font-size: 0.78em; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.stat-tile-nums { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.stat-num { text-align: center; }
+.stat-num-val { font-size: 1.5em; font-weight: 700; }
+.stat-num-lbl { font-size: 0.7em; color: var(--muted); }
+.filed-col { color: var(--filed); } .pending-col { color: #d97706; } .inprogress-col { color: var(--inprogress); }
+.progress-bar-wrap { height: 6px; background: #e9ecef; border-radius: 3px; overflow: hidden; }
+.progress-bar-fill { height: 100%; border-radius: 3px; background: var(--filed); transition: width 0.5s; }
+.month-toolbar { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; flex-wrap: wrap; }
+.month-select { padding: 9px 16px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.95em; font-weight: 600; outline: none; cursor: pointer; background: white; }
+.comp-table-wrap { overflow-x: auto; }
+.comp-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.855em; }
+.comp-table th { background: var(--navy); color: white; padding: 12px 10px; font-weight: 600; text-align: left; white-space: nowrap; }
+.comp-table th:first-child { border-radius: 10px 0 0 0; } .comp-table th:last-child { border-radius: 0 10px 0 0; }
+.comp-table td { padding: 9px 10px; border-bottom: 1px solid #eef0f7; vertical-align: middle; }
+.comp-table tr:last-child td { border-bottom: none; }
+.comp-table tr:hover td { background: #f5f7ff; }
+.comp-table tr.row-green td { background: #f0faf4; }
+.comp-table tr.row-red td { background: #fff5f5; }
+.comp-table tr.row-yellow td { background: #fffbf0; }
+.status-pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.8em; font-weight: 700; white-space: nowrap; }
+.pill-filed { background: #dbeafe; color: #1d4ed8; } .pill-paid { background: #dcfce7; color: #166534; }
+.pill-pending { background: #fef3c7; color: #92400e; } .pill-inprogress { background: #ffedd5; color: #9a3412; }
+.pill-na { background: #f3f4f6; color: #6b7280; } .pill-none { background: #e5e7eb; color: #9ca3af; font-style: italic; }
+
+/* DUE DATES */
+.password-gate { max-width: 400px; margin: 80px auto; text-align: center; }
+.password-gate .card { padding: 40px; }
+.password-gate h3 { font-family: 'DM Serif Display', serif; font-size: 1.5em; color: var(--navy); margin-bottom: 8px; }
+.due-dates-section { display: none; }
+.due-dates-section.unlocked { display: block; }
+.due-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.9em; }
+.due-table th { background: var(--navy); color: white; padding: 13px 16px; font-weight: 600; text-align: left; }
+.due-table th:first-child { border-radius: 10px 0 0 0; } .due-table th:last-child { border-radius: 0 10px 0 0; }
+.due-table td { padding: 13px 16px; border-bottom: 1px solid #eef0f7; vertical-align: middle; }
+.due-table tr:last-child td { border-bottom: none; }
+.countdown-pill { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.82em; font-weight: 700; }
+.countdown-overdue { background: #fee2e2; color: #991b1b; }
+.countdown-urgent { background: #ffedd5; color: #9a3412; }
+.countdown-ok { background: #dcfce7; color: #166534; }
+.countdown-future { background: #e0e7ff; color: #3730a3; }
+
+/* USER MANAGEMENT */
+.users-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.9em; }
+.users-table th { background: var(--navy); color: white; padding: 13px 16px; font-weight: 600; text-align: left; }
+.users-table th:first-child { border-radius: 10px 0 0 0; } .users-table th:last-child { border-radius: 0 10px 0 0; }
+.users-table td { padding: 13px 16px; border-bottom: 1px solid #eef0f7; vertical-align: middle; }
+.users-table tr:last-child td { border-bottom: none; }
+.users-table tr:hover td { background: #f5f7ff; }
+
+/* MODALS */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10,20,40,0.55); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.open { display: flex; }
+.modal { background: white; border-radius: 16px; width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(10,20,40,0.3); animation: modalIn 0.25s ease; }
+@keyframes modalIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
+.modal-header { background: linear-gradient(135deg, var(--navy), var(--navy2)); color: white; padding: 22px 28px; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center; }
+.modal-header h3 { font-family: 'DM Serif Display', serif; font-size: 1.3em; }
+.modal-close { background: rgba(255,255,255,0.15); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.1em; display: flex; align-items: center; justify-content: center; }
+.modal-close:hover { background: rgba(255,255,255,0.3); }
+.modal-body { padding: 28px; }
+.modal-footer { padding: 18px 28px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-weight: 600; font-size: 0.85em; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px; }
+.form-control { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.92em; outline: none; transition: border 0.2s; }
+.form-control:focus { border-color: var(--navy); }
+.toggle-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.toggle-btn { padding: 7px 16px; border-radius: 7px; border: 2px solid var(--border); background: white; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.85em; cursor: pointer; transition: all 0.15s; color: var(--muted); }
+.toggle-btn.active { border-color: var(--navy); background: var(--navy); color: white; }
+.section-divider { border: none; border-top: 1.5px solid var(--border); margin: 20px 0; }
+.section-label { font-size: 0.8em; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 12px; }
+.compliance-status-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.compliance-status-item label { font-size: 0.82em; font-weight: 600; color: var(--text); margin-bottom: 5px; display: block; }
+.compliance-status-item select { width: 100%; padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.85em; cursor: pointer; outline: none; }
+.compliance-status-item select:focus { border-color: var(--navy); }
+.pw-error { color: #e74c3c; font-size: 0.85em; margin-top: 6px; }
+.pw-input { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 1em; margin-bottom: 12px; outline: none; }
+.pw-input:focus { border-color: var(--navy); }
+
+/* MODAL TABS */
+.modal-tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 24px; }
+.modal-tab-btn { padding: 10px 20px; border: none; background: transparent; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.88em; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.18s; }
+.modal-tab-btn:hover { color: var(--navy); }
+.modal-tab-btn.active { color: var(--navy); border-bottom-color: var(--navy); }
+.modal-tab-pane { display: none; }
+.modal-tab-pane.active { display: block; }
+
+/* PORTAL CREDENTIALS */
+.portal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media(max-width:600px) { .portal-grid { grid-template-columns: 1fr; } }
+.portal-card { border: 1.5px solid var(--border); border-radius: 10px; padding: 16px; background: #fafbff; }
+.portal-card-title { font-weight: 700; font-size: 0.82em; color: var(--navy); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+.portal-card-title .portal-icon { font-size: 1.1em; }
+.pw-field-wrap { position: relative; }
+.pw-field-wrap .form-control { padding-right: 40px; }
+.pw-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--muted); font-size: 1em; padding: 0; }
+.pw-toggle:hover { color: var(--navy); }
+.portal-link-btn { margin-left: auto; padding: 3px 10px; background: var(--navy); color: white; border: none; border-radius: 6px; font-size: 0.72em; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; letter-spacing: 0.3px; transition: all 0.15s; white-space: nowrap; }
+.portal-link-btn:hover { background: var(--accent); color: var(--navy); transform: translateY(-1px); }
+
+/* CONTACT INFO GRID */
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media(max-width:600px) { .contact-grid { grid-template-columns: 1fr; } }
+
+/* GSTIN VALIDATION */
+.gstin-valid { border-color: #16a34a !important; background: #f0fdf4 !important; }
+.gstin-invalid { border-color: #dc2626 !important; background: #fff5f5 !important; }
+.gstin-info-box { border-radius: 8px; padding: 10px 14px; font-size: 0.82em; display: flex; flex-direction: column; gap: 4px; }
+.gstin-info-valid { background: #f0fdf4; border: 1px solid #86efac; color: #166534; }
+.gstin-info-error { background: #fff5f5; border: 1px solid #fca5a5; color: #991b1b; }
+.gstin-info-partial { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+.gstin-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.gstin-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: 0.85em; }
+.gstin-chip-state { background: #dbeafe; color: #1e40af; }
+.gstin-chip-pan { background: #ede9fe; color: #5b21b6; }
+.gstin-chip-type { background: #fef3c7; color: #92400e; }
+.gstin-chip-entity { background: #d1fae5; color: #065f46; }
+.gstin-chip-ok { background: #dcfce7; color: #166534; }
+.audit-log-wrap { max-height: 320px; overflow-y: auto; border: 1.5px solid var(--border); border-radius: 10px; }
+.audit-row { display: flex; gap: 12px; padding: 10px 14px; border-bottom: 1px solid #f0f2f7; align-items: flex-start; font-size: 0.82em; }
+.audit-row:last-child { border-bottom: none; }
+.audit-row:hover { background: #f7f9ff; }
+.audit-who { font-weight: 700; color: var(--navy); white-space: nowrap; min-width: 80px; }
+.audit-what { color: var(--text); flex: 1; }
+.audit-when { color: var(--muted); white-space: nowrap; font-size: 0.9em; }
+.audit-badge { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 0.78em; font-weight: 700; margin-right: 4px; }
+.audit-edit { background: #dbeafe; color: #1d4ed8; }
+.audit-add { background: #dcfce7; color: #166534; }
+.audit-del { background: #fee2e2; color: #991b1b; }
+.audit-status { background: #fff3cd; color: #92400e; }
+
+/* OTP CSS removed — using simple password change instead */
+.teams-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 22px; margin-top: 8px; }
+.team-section-header { font-family: 'DM Serif Display', serif; font-size: 1.3em; color: var(--navy); margin-bottom: 18px; padding-bottom: 10px; border-bottom: 2px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.team-card { background: var(--card); border-radius: var(--radius); border: 1.5px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
+.team-card-header { padding: 18px 20px 14px; display: flex; align-items: center; justify-content: space-between; }
+.team-card-name { font-family: 'DM Serif Display', serif; font-size: 1.15em; color: var(--navy); }
+.team-card-color { width: 12px; height: 12px; border-radius: 50%; }
+.team-member-list { padding: 0 20px 16px; }
+.team-member-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f2f7; }
+.team-member-row:last-child { border-bottom: none; }
+.team-member-info { display: flex; align-items: center; gap: 10px; }
+.team-member-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.78em; font-weight: 800; flex-shrink: 0; }
+.team-member-name { font-weight: 600; font-size: 0.9em; }
+.team-member-role { font-size: 0.75em; color: var(--muted); }
+.team-member-actions { display: flex; gap: 5px; opacity: 0; transition: opacity 0.15s; }
+.team-member-row:hover .team-member-actions { opacity: 1; }
+.role-pill { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 0.7em; font-weight: 700; }
+.role-partner { background: #fff3e0; color: #e65100; }
+.role-leader { background: #e3f2fd; color: #1565c0; }
+.role-member { background: #f3e5f5; color: #6a1b9a; }
+.team-add-btn { width: 100%; padding: 9px; border: 1.5px dashed var(--border); border-radius: 0 0 var(--radius) var(--radius); background: transparent; color: var(--muted); font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.85em; cursor: pointer; transition: all 0.15s; }
+.team-add-btn:hover { background: #f5f7ff; color: var(--navy); border-color: var(--navy); }
+.partners-section { margin-bottom: 32px; }
+.partner-card { background: linear-gradient(135deg, #0f1f3d, #1a3260); color: white; border-radius: var(--radius); padding: 20px 24px; display: flex; align-items: center; gap: 16px; box-shadow: var(--shadow); }
+.partner-avatar { width: 52px; height: 52px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.2em; font-weight: 800; color: var(--accent2); flex-shrink: 0; }
+.partner-name { font-family: 'DM Serif Display', serif; font-size: 1.1em; }
+.partner-role { font-size: 0.8em; opacity: 0.7; margin-top: 2px; }
+.partners-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 32px; }
+
+/* AVATAR COLORS */
+.av-d { background: #e8f5e9; color: #2e7d32; }
+.av-n { background: #e3f2fd; color: #1565c0; }
+.av-a { background: #fff3e0; color: #e65100; }
+.av-g { background: #f3e5f5; color: #6a1b9a; }
+
+.flex { display: flex; } .gap-2 { gap: 8px; } .mt-4 { margin-top: 16px; }
+.text-muted { color: var(--muted); font-size: 0.85em; } .fw-bold { font-weight: 700; }
+
+.toast { position: fixed; bottom: 28px; right: 28px; background: var(--navy); color: white; padding: 14px 22px; border-radius: 10px; font-size: 0.9em; font-weight: 500; box-shadow: 0 8px 24px rgba(0,0,0,0.2); z-index: 9999; display: none; }
+</style>
+</head>
+<body>
+
+<!-- ==================== LOGIN SCREEN ==================== -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">Compliance<span>Hub</span></div>
+    <div class="login-sub">GST · TDS · PF · PT · ESI · Accounting</div>
+
+    <div class="section-label" style="text-align:center;margin-bottom:14px;">Select Your Account</div>
+    <div class="login-user-grid" id="loginUserGrid"></div>
+
+    <label class="login-field-label">Password</label>
+    <input type="password" class="login-input" id="loginPassword" placeholder="Enter your password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- ==================== APP SCREEN ==================== -->
+<div id="appScreen">
+  <div class="topbar">
+    <div>
+      <div class="topbar-logo">Compliance<span>Hub</span></div>
+      <div class="topbar-sub">GST · TDS · PF · PT · ESI · Accounting</div>
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchTab('clients',this)">📋 Clients</button>
+      <button class="nav-tab" onclick="switchTab('status',this)">📊 Filing Status</button>
+      <button class="nav-tab" onclick="switchTab('duedates',this)">📅 Due Dates</button>
+      <button class="nav-tab" onclick="switchTab('teams',this)">🏢 Teams</button>
+      <button class="nav-tab" onclick="switchTab('users',this)">👥 Users</button>
+    </div>
+    <div class="topbar-right">
+      <div class="user-chip">
+        <div class="login-user-avatar user-chip-avatar" id="topbarAvatar"></div>
+        <span id="topbarName"></span>
+      </div>
+      <button class="btn-ghost" onclick="openMyProfileModal()">⚙️ Profile</button>
+      <button class="btn-ghost" onclick="logout()">⇠ Logout</button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- PAGE 1: CLIENTS -->
+    <div class="page active" id="page-clients">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Client <span>Directory</span></div>
+          <div class="text-muted" id="client-count-label"></div>
+        </div>
+        <div class="clients-toolbar">
+          <input type="text" class="search-box" placeholder="🔍 Search clients..." id="clientSearch" oninput="renderClients()">
+          <button class="btn btn-primary" onclick="openAddClientModal()">＋ Add Client</button>
+        </div>
+      </div>
+      <div class="clients-grid" id="clientsGrid"></div>
+    </div>
+
+    <!-- PAGE 2: STATUS -->
+    <div class="page" id="page-status">
+      <div class="page-header">
+        <div class="page-title">Filing <span>Status</span></div>
+        <button class="btn btn-success" onclick="exportCSV()">⬇ Export CSV</button>
+      </div>
+      <div class="month-toolbar">
+        <label class="fw-bold">Month:</label>
+        <select class="month-select" id="statusMonth" onchange="renderStatus()"></select>
+      </div>
+      <div class="stats-row" id="statsRow"></div>
+      <div class="card">
+        <div class="comp-table-wrap">
+          <table class="comp-table">
+            <thead><tr><th>#</th><th>Client Name</th><th>Responsible</th><th>Type</th><th>GSTR-1</th><th>GSTR-3B</th><th>TDS</th><th>PF</th><th>PT</th><th>ESI</th><th>Accounting</th><th>Remarks</th></tr></thead>
+            <tbody id="compTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 3: DUE DATES -->
+    <div class="page" id="page-duedates">
+      <div class="page-title" style="margin-bottom:24px;">Due <span style="color:var(--accent)">Dates</span></div>
+      <div class="password-gate" id="pwGate">
+        <div class="card">
+          <div style="font-size:2.5em;margin-bottom:12px;">🔒</div>
+          <h3>Protected Section</h3>
+          <p style="color:var(--muted);margin-bottom:24px;font-size:0.9em;">Enter the due dates admin password to edit.</p>
+          <input type="password" class="pw-input" id="pwInput" placeholder="Admin Password" onkeydown="if(event.key==='Enter')checkDdPassword()">
+          <div class="pw-error" id="pwError"></div>
+          <button class="btn btn-primary" style="width:100%;margin-top:16px;justify-content:center;" onclick="checkDdPassword()">Unlock</button>
+        </div>
+      </div>
+      <div class="due-dates-section" id="dueDateSection">
+        <div class="page-header">
+          <div class="text-muted">Due dates for — <strong id="ddMonthLabel"></strong></div>
+          <div class="flex gap-2" style="flex-wrap:wrap;">
+            <select class="month-select" id="ddMonth" onchange="renderDueDates()"></select>
+            <button class="btn btn-primary" onclick="openAddDueDateModal()">＋ Add Due Date</button>
+            <button class="btn btn-outline" onclick="openChangeDdPwModal()">🔑 Change Password</button>
+            <button class="btn btn-accent btn-sm" onclick="lockDueDates()">🔒 Lock</button>
+          </div>
+        </div>
+        <div class="card">
+          <div style="overflow-x:auto;">
+            <table class="due-table">
+              <thead><tr><th>Compliance</th><th>Due Date</th><th>Days Remaining</th><th>Rule</th><th>Actions</th></tr></thead>
+              <tbody id="dueTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 4: TEAMS -->
+    <div class="page" id="page-teams">
+      <div class="page-header">
+        <div class="page-title">Teams & <span>Organisation</span></div>
+        <div class="flex gap-2" style="flex-wrap:wrap;">
+          <button class="btn btn-outline" onclick="openAddPartnerModal()">➕ Add Partner</button>
+          <button class="btn btn-primary" onclick="openAddTeamModal()">➕ Add Team</button>
+        </div>
+      </div>
+
+      <!-- PARTNERS -->
+      <div class="section-label" style="margin-bottom:14px;">👔 Partners</div>
+      <div class="partners-grid" id="partnersGrid"></div>
+
+      <!-- TEAM LEADERS -->
+      <div class="section-label" style="margin-bottom:14px;">🎯 Teams & Team Leaders</div>
+      <div class="teams-grid" id="teamsGrid"></div>
+    </div>
+
+    <!-- PAGE 5: USERS -->
+    <div class="page" id="page-users">
+      <div class="page-header">
+        <div class="page-title">User <span>Management</span></div>
+        <button class="btn btn-primary" onclick="openAddUserModal()">＋ Add User</button>
+      </div>
+      <div style="background:#e8f4fd;border:1px solid #bee3f8;border-radius:10px;padding:12px 18px;margin-bottom:20px;font-size:0.85em;color:#1a5276;display:flex;align-items:center;gap:10px;">
+        🔐 <span><strong>Password Security Policy:</strong> Each user can only change <strong>their own password</strong> via <strong>⚙️ Profile</strong>. Admins can edit user name, username and role — but <strong>cannot change anyone else's password</strong>.</span>
+      </div>
+      <div class="card" style="padding:0;">
+        <div style="overflow-x:auto;">
+          <table class="users-table" id="usersTable">
+            <thead><tr><th>#</th><th>Name &amp; Mobile</th><th>Username</th><th>Role</th><th>Actions</th></tr></thead>
+            <tbody id="usersTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /appScreen -->
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ==================== MODALS ==================== -->
+
+<!-- Client Detail Modal -->
+<div class="modal-overlay" id="clientDetailModal">
+  <div class="modal" style="max-width:780px;">
+    <div class="modal-header">
+      <h3 id="cdModalTitle">Client Details</h3>
+      <button class="modal-close" onclick="closeModal('clientDetailModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- MODAL TABS -->
+      <div class="modal-tabs">
+        <button class="modal-tab-btn active" onclick="switchModalTab('tab-general',this)">📋 General</button>
+        <button class="modal-tab-btn" onclick="switchModalTab('tab-contact',this)">📞 Contact & IDs</button>
+        <button class="modal-tab-btn" onclick="switchModalTab('tab-portals',this)">🔐 Portal Credentials</button>
+        <button class="modal-tab-btn" onclick="switchModalTab('tab-filings',this)">📅 Monthly Filings</button>
+        <button class="modal-tab-btn" onclick="switchModalTab('tab-audit',this)">📝 Activity Log</button>
+      </div>
+
+      <!-- TAB 1: GENERAL -->
+      <div class="modal-tab-pane active" id="tab-general">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Client Name</label>
+            <input type="text" class="form-control" id="cd_name">
+          </div>
+          <div class="form-group">
+            <label>Responsible Person</label>
+            <input type="text" class="form-control" id="cd_resp">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Team</label>
+            <select class="form-control" id="cd_team"></select>
+          </div>
+          <div class="form-group">
+            <label>Type</label>
+            <div class="toggle-group" style="margin-top:4px;">
+              <button class="toggle-btn active" id="tb_inhouse" onclick="setType('Inhouse')">Inhouse</button>
+              <button class="toggle-btn" id="tb_outsourced" onclick="setType('Outsourced')">Outsourced</button>
+            </div>
+          </div>
+        </div>
+        <hr class="section-divider">
+        <div class="section-label">Applicable Compliances</div>
+        <div class="toggle-group" id="complianceToggles">
+          <button class="toggle-btn" onclick="toggleCompliance(this,'gstr1')">GSTR-1</button>
+          <button class="toggle-btn" onclick="toggleCompliance(this,'gstr3b')">GSTR-3B</button>
+          <button class="toggle-btn" onclick="toggleCompliance(this,'tds')">TDS</button>
+          <button class="toggle-btn" onclick="toggleCompliance(this,'pf')">PF</button>
+          <button class="toggle-btn" onclick="toggleCompliance(this,'pt')">PT</button>
+          <button class="toggle-btn" onclick="toggleCompliance(this,'esi')">ESI</button>
+          <button class="toggle-btn" onclick="toggleCompliance(this,'accounting')">Accounting</button>
+        </div>
+      </div>
+
+      <!-- TAB 2: CONTACT & IDs -->
+      <div class="modal-tab-pane" id="tab-contact">
+        <div class="contact-grid">
+          <div class="form-group" style="grid-column:1/-1;">
+            <label>GSTIN</label>
+            <div style="position:relative;">
+              <input type="text" class="form-control" id="cd_gstin" placeholder="e.g. 29ABCDE1234F1Z5" maxlength="15" style="text-transform:uppercase;letter-spacing:1px;" oninput="validateGSTIN(this.value)">
+            </div>
+            <div id="gstin_feedback" style="margin-top:6px;display:none;"></div>
+          </div>
+          <div class="form-group">
+            <label>PAN Number</label>
+            <input type="text" class="form-control" id="cd_pan" placeholder="e.g. ABCDE1234F" maxlength="10" style="text-transform:uppercase;">
+          </div>
+          <div class="form-group">
+            <label>TAN Number</label>
+            <input type="text" class="form-control" id="cd_tan" placeholder="e.g. BLRX12345A" maxlength="10" style="text-transform:uppercase;">
+          </div>
+          <div class="form-group">
+            <label>Email ID</label>
+            <input type="email" class="form-control" id="cd_email" placeholder="client@example.com">
+          </div>
+          <div class="form-group">
+            <label>Contact Number <span style="color:#e74c3c;font-size:0.8em;">* 10 digits</span></label>
+            <input type="tel" class="form-control" id="cd_phone" placeholder="10-digit mobile" maxlength="10" oninput="validatePhone(this,'cd_phone_err')">
+            <div class="pw-error" id="cd_phone_err"></div>
+          </div>
+          <div class="form-group">
+            <label>Alternate Contact <span style="color:var(--muted);font-size:0.8em;">(optional)</span></label>
+            <input type="tel" class="form-control" id="cd_phone2" placeholder="10-digit mobile" maxlength="10" oninput="validatePhone(this,'cd_phone2_err')">
+            <div class="pw-error" id="cd_phone2_err"></div>
+          </div>
+          <div class="form-group" style="grid-column:1/-1;">
+            <label>Address</label>
+            <input type="text" class="form-control" id="cd_address" placeholder="Full address...">
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: PORTAL CREDENTIALS -->
+      <div class="modal-tab-pane" id="tab-portals">
+        <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:10px 14px;margin-bottom:18px;font-size:0.82em;color:#7b5800;">
+          🔒 Portal credentials are stored locally in your browser. Keep this device secure.
+        </div>
+        <div class="portal-grid">
+
+          <!-- GST Portal -->
+          <div class="portal-card">
+            <div class="portal-card-title"><span class="portal-icon">🧾</span> GST Portal <button class="portal-link-btn" onclick="openPortal('gst')" type="button">Open Portal ↗</button></div>
+            <div class="form-group">
+              <label>User ID</label>
+              <input type="text" class="form-control" id="cd_gst_id" placeholder="GST Login ID" autocomplete="off">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label>Password</label>
+              <div class="pw-field-wrap">
+                <input type="password" class="form-control" id="cd_gst_pw" placeholder="GST Password" autocomplete="off">
+                <button class="pw-toggle" onclick="togglePwVis('cd_gst_pw',this)" type="button">👁</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Income Tax Portal -->
+          <div class="portal-card">
+            <div class="portal-card-title"><span class="portal-icon">🏛️</span> Income Tax Portal <button class="portal-link-btn" onclick="openPortal('it')" type="button">Open Portal ↗</button></div>
+            <div class="form-group">
+              <label>User ID (PAN)</label>
+              <input type="text" class="form-control" id="cd_it_id" placeholder="IT Login ID / PAN" autocomplete="off">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label>Password</label>
+              <div class="pw-field-wrap">
+                <input type="password" class="form-control" id="cd_it_pw" placeholder="IT Password" autocomplete="off">
+                <button class="pw-toggle" onclick="togglePwVis('cd_it_pw',this)" type="button">👁</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- TDS / TRACES -->
+          <div class="portal-card">
+            <div class="portal-card-title"><span class="portal-icon">📊</span> TDS / TRACES <button class="portal-link-btn" onclick="openPortal('tds')" type="button">Open Portal ↗</button></div>
+            <div class="form-group">
+              <label>User ID</label>
+              <input type="text" class="form-control" id="cd_tds_id" placeholder="TAN / TRACES ID" autocomplete="off">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label>Password</label>
+              <div class="pw-field-wrap">
+                <input type="password" class="form-control" id="cd_tds_pw" placeholder="TRACES Password" autocomplete="off">
+                <button class="pw-toggle" onclick="togglePwVis('cd_tds_pw',this)" type="button">👁</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- PF / EPFO -->
+          <div class="portal-card">
+            <div class="portal-card-title"><span class="portal-icon">🏦</span> PF / EPFO Portal <button class="portal-link-btn" onclick="openPortal('pf')" type="button">Open Portal ↗</button></div>
+            <div class="form-group">
+              <label>Establishment ID / User ID</label>
+              <input type="text" class="form-control" id="cd_pf_id" placeholder="EPFO User ID" autocomplete="off">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label>Password</label>
+              <div class="pw-field-wrap">
+                <input type="password" class="form-control" id="cd_pf_pw" placeholder="EPFO Password" autocomplete="off">
+                <button class="pw-toggle" onclick="togglePwVis('cd_pf_pw',this)" type="button">👁</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ESI Portal -->
+          <div class="portal-card">
+            <div class="portal-card-title"><span class="portal-icon">🏥</span> ESI Portal <button class="portal-link-btn" onclick="openPortal('esi')" type="button">Open Portal ↗</button></div>
+            <div class="form-group">
+              <label>Employer Code / User ID</label>
+              <input type="text" class="form-control" id="cd_esi_id" placeholder="ESI User ID" autocomplete="off">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label>Password</label>
+              <div class="pw-field-wrap">
+                <input type="password" class="form-control" id="cd_esi_pw" placeholder="ESI Password" autocomplete="off">
+                <button class="pw-toggle" onclick="togglePwVis('cd_esi_pw',this)" type="button">👁</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- PT Portal -->
+          <div class="portal-card">
+            <div class="portal-card-title"><span class="portal-icon">📋</span> PT Portal <button class="portal-link-btn" onclick="openPortal('pt')" type="button">Open Portal ↗</button></div>
+            <div class="form-group">
+              <label>User ID / Reg. Number</label>
+              <input type="text" class="form-control" id="cd_pt_id" placeholder="PT User ID" autocomplete="off">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label>Password</label>
+              <div class="pw-field-wrap">
+                <input type="password" class="form-control" id="cd_pt_pw" placeholder="PT Password" autocomplete="off">
+                <button class="pw-toggle" onclick="togglePwVis('cd_pt_pw',this)" type="button">👁</button>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /portal-grid -->
+      </div>
+
+      <!-- TAB 4: MONTHLY FILINGS -->
+      <div class="modal-tab-pane" id="tab-filings">
+        <div class="month-toolbar" style="margin-bottom:16px;">
+          <label class="fw-bold" style="font-size:0.85em;">Month:</label>
+          <select class="month-select" id="cd_month" onchange="renderClientMonthStatus()"></select>
+        </div>
+        <div class="compliance-status-grid" id="cdStatusGrid"></div>
+        <div class="form-group mt-4">
+          <label>Remarks</label>
+          <input type="text" class="form-control" id="cd_remark" placeholder="Any notes...">
+        </div>
+      </div>
+
+      <!-- TAB 5: ACTIVITY LOG -->
+      <div class="modal-tab-pane" id="tab-audit">
+        <div style="background:#f0f4ff;border:1px solid #c7d2fe;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:0.82em;color:#3730a3;display:flex;align-items:center;gap:8px;">
+          📋 <span>Immutable activity record — all changes to this client are permanently logged with who made them and when.</span>
+        </div>
+        <div class="audit-log-wrap" id="auditLogWrap">
+          <div style="padding:20px;text-align:center;color:var(--muted);font-size:0.85em;">No activity recorded yet.</div>
+        </div>
+      </div>
+
+    </div><!-- /modal-body -->
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('clientDetailModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveClientDetail()">💾 Save All</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Client Modal -->
+<div class="modal-overlay" id="addClientModal">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-header">
+      <h3 id="addClientTitle">Add New Client</h3>
+      <button class="modal-close" onclick="closeModal('addClientModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Client Name</label><input type="text" class="form-control" id="ac_name" placeholder="Full client name"></div>
+      <div class="form-group"><label>Responsible Person</label><input type="text" class="form-control" id="ac_resp" placeholder="Name"></div>
+      <div class="form-group"><label>Type</label><select class="form-control" id="ac_type"><option>Inhouse</option><option>Outsourced</option></select></div>
+      <div class="form-group">
+        <label>Applicable Compliances</label>
+        <div class="toggle-group" id="ac_compToggles">
+          <button class="toggle-btn" onclick="this.classList.toggle('active')">GSTR-1</button>
+          <button class="toggle-btn" onclick="this.classList.toggle('active')">GSTR-3B</button>
+          <button class="toggle-btn" onclick="this.classList.toggle('active')">TDS</button>
+          <button class="toggle-btn" onclick="this.classList.toggle('active')">PF</button>
+          <button class="toggle-btn" onclick="this.classList.toggle('active')">PT</button>
+          <button class="toggle-btn" onclick="this.classList.toggle('active')">ESI</button>
+          <button class="toggle-btn" onclick="this.classList.toggle('active')">Accounting</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addClientModal')">Cancel</button>
+      <button class="btn btn-primary" id="saveClientBtn" onclick="saveNewClient()">➕ Add Client</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Due Date Modal -->
+<div class="modal-overlay" id="addDueDateModal">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <h3 id="ddModalTitle">Add Due Date</h3>
+      <button class="modal-close" onclick="closeModal('addDueDateModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Compliance Name</label><input type="text" class="form-control" id="dd_name" placeholder="e.g. Advance Tax"></div>
+      <div class="form-group"><label>Day of Month (in next month)</label><input type="number" class="form-control" id="dd_day" min="1" max="31" placeholder="e.g. 15"></div>
+      <div class="form-group"><label>Rule Description</label><input type="text" class="form-control" id="dd_rule" placeholder="e.g. 15th of next month"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addDueDateModal')">Cancel</button>
+      <button class="btn btn-primary" id="saveDdBtn" onclick="saveDueDate()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Change Due Date Password Modal -->
+<div class="modal-overlay" id="changeDdPwModal">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header"><h3>Change Due Date Password</h3><button class="modal-close" onclick="closeModal('changeDdPwModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Current Password</label><input type="password" class="form-control" id="cdp_current"></div>
+      <div class="form-group"><label>New Password</label><input type="password" class="form-control" id="cdp_new"></div>
+      <div class="form-group"><label>Confirm New Password</label><input type="password" class="form-control" id="cdp_confirm"></div>
+      <div class="pw-error" id="cdpError"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('changeDdPwModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="changeDdPassword()">Update</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal-overlay" id="addUserModal">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header"><h3 id="addUserTitle">Add New User</h3><button class="modal-close" onclick="closeModal('addUserModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Full Name</label><input type="text" class="form-control" id="au_name" placeholder="e.g. Priya Sharma"></div>
+      <div class="form-group"><label>Username (for login)</label><input type="text" class="form-control" id="au_username" placeholder="e.g. Priya"></div>
+      
+      <div class="form-group"><label>Password</label><input type="password" class="form-control" id="au_password" placeholder="Min 4 characters"></div>
+      <div class="form-group"><label>Role</label><input type="text" class="form-control" id="au_role" placeholder="e.g. Associate, Manager"></div>
+      <div class="pw-error" id="auError"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addUserModal')">Cancel</button>
+      <button class="btn btn-primary" id="saveUserBtn" onclick="saveUser()">➕ Add User</button>
+    </div>
+  </div>
+</div>
+
+<!-- My Profile / Change Password Modal -->
+<div class="modal-overlay" id="myProfileModal">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header"><h3>My Profile</h3><button class="modal-close" onclick="closeModal('myProfileModal')">✕</button></div>
+    <div class="modal-body">
+
+      <!-- Profile display -->
+      <div style="text-align:center;margin-bottom:20px;">
+        <div class="login-user-avatar" id="profileAvatar" style="width:64px;height:64px;font-size:1.6em;margin:0 auto 10px;border-radius:50%;display:flex;align-items:center;justify-content:center;"></div>
+        <div style="font-weight:700;font-size:1.1em;" id="profileName"></div>
+        <div style="color:var(--muted);font-size:0.85em;" id="profileRole"></div>
+        <div style="color:var(--muted);font-size:0.78em;margin-top:4px;" id="profileUsername"></div>
+      </div>
+
+      <hr class="section-divider">
+      <div class="section-label">🔑 Change My Password</div>
+      <div style="background:#e8f4fd;border:1px solid #bee3f8;border-radius:8px;padding:10px 14px;font-size:0.82em;color:#1a5276;margin-bottom:18px;">
+        🔐 Only <strong>you</strong> can change your own password. Others cannot change your password.
+      </div>
+
+      <div class="form-group">
+        <label>Current Password</label>
+        <div class="pw-field-wrap">
+          <input type="password" class="form-control" id="mp_current" placeholder="Enter your current password">
+          <button class="pw-toggle" onclick="togglePwVis('mp_current',this)">👁</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>New Password</label>
+        <div class="pw-field-wrap">
+          <input type="password" class="form-control" id="mp_new" placeholder="Min 4 characters">
+          <button class="pw-toggle" onclick="togglePwVis('mp_new',this)">👁</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Confirm New Password</label>
+        <div class="pw-field-wrap">
+          <input type="password" class="form-control" id="mp_confirm" placeholder="Re-enter new password">
+          <button class="pw-toggle" onclick="togglePwVis('mp_confirm',this)">👁</button>
+        </div>
+      </div>
+
+      <div class="pw-error" id="mpError"></div>
+      <div id="mpSuccess" style="display:none;background:#d4edda;border:1px solid #c3e6cb;border-radius:8px;padding:10px 14px;font-size:0.85em;color:#155724;margin-bottom:10px;text-align:center;">
+        ✅ Password changed successfully!
+      </div>
+
+      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:4px;" onclick="changeMyPassword()">🔑 Update Password</button>
+
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Partner Modal -->
+<div class="modal-overlay" id="addPartnerModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header"><h3 id="partnerModalTitle">Add Partner</h3><button class="modal-close" onclick="closeModal('addPartnerModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Partner Name</label><input type="text" class="form-control" id="ap_name" placeholder="Full name"></div>
+      <div class="form-group"><label>Designation / Role</label><input type="text" class="form-control" id="ap_role" placeholder="e.g. Founding Partner, Senior Partner"></div>
+      <div class="form-group"><label>Email</label><input type="email" class="form-control" id="ap_email" placeholder="partner@firm.com"></div>
+      <div class="form-group"><label>Contact</label><input type="text" class="form-control" id="ap_phone" placeholder="+91 98765 43210"></div>
+      <div class="pw-error" id="apError"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addPartnerModal')">Cancel</button>
+      <button class="btn btn-primary" id="savePartnerBtn" onclick="savePartner()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Team Modal -->
+<div class="modal-overlay" id="addTeamModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header"><h3 id="teamModalTitle">Add Team</h3><button class="modal-close" onclick="closeModal('addTeamModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Team Name</label><input type="text" class="form-control" id="at_name" placeholder="e.g. Team Nishmitha"></div>
+      <div class="form-group"><label>Team Leader Name</label><input type="text" class="form-control" id="at_leader" placeholder="e.g. Nishmitha"></div>
+      <div class="form-group"><label>Team Leader Email</label><input type="email" class="form-control" id="at_leader_email" placeholder="leader@firm.com"></div>
+      <div class="pw-error" id="atError"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addTeamModal')">Cancel</button>
+      <button class="btn btn-primary" id="saveTeamBtn" onclick="saveTeam()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Team Member Modal -->
+<div class="modal-overlay" id="addMemberModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header"><h3 id="memberModalTitle">Add Team Member</h3><button class="modal-close" onclick="closeModal('addMemberModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Member Name</label><input type="text" class="form-control" id="am_name" placeholder="Full name"></div>
+      <div class="form-group"><label>Designation</label><input type="text" class="form-control" id="am_role" placeholder="e.g. Associate, Senior Associate"></div>
+      <div class="form-group"><label>Email</label><input type="email" class="form-control" id="am_email" placeholder="member@firm.com"></div>
+      <div class="pw-error" id="amError"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addMemberModal')">Cancel</button>
+      <button class="btn btn-primary" id="saveMemberBtn" onclick="saveMember()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =====================================================
+//  CONSTANTS
+// =====================================================
+const MONTHS = ["April 2026","May 2026","June 2026","July 2026","August 2026","September 2026","October 2026","November 2026","December 2026","January 2027","February 2027","March 2027"];
+const COMPLIANCES = ['gstr1','gstr3b','tds','pf','pt','esi','accounting'];
+const COMP_LABELS = { gstr1:'GSTR-1', gstr3b:'GSTR-3B', tds:'TDS', pf:'PF', pt:'PT', esi:'ESI', accounting:'Accounting' };
+const STATUS_OPTS = ['Pending','In Progress','Filed','Paid','NA'];
+const COMP_KEYS_MAP = { 'GSTR-1':'gstr1','GSTR-3B':'gstr3b','TDS':'tds','PF':'pf','PT':'pt','ESI':'esi','Accounting':'accounting' };
+
+// Avatar colors per user
+const AV_COLORS = ['av-d','av-n','av-a','av-g'];
+function getAvColor(idx) { return AV_COLORS[idx % AV_COLORS.length]; }
+function getInitials(name) { return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2); }
+
+// =====================================================
+//  DATABASE
+// =====================================================
+function loadDB() {
+  const saved = localStorage.getItem('complianceHubV4');
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    const emptyContact = {gstin:'',pan:'',tan:'',email:'',phone:'',phone2:'',address:''};
+    const emptyPortals = {gst_id:'',gst_pw:'',it_id:'',it_pw:'',tds_id:'',tds_pw:'',pf_id:'',pf_pw:'',esi_id:'',esi_pw:'',pt_id:'',pt_pw:''};
+    parsed.clients.forEach(c => {
+      if (!c.contact) c.contact = {...emptyContact};
+      if (!c.portals) c.portals = {...emptyPortals};
+      if (!c.team) c.team = '';
+    });
+    if (!parsed.partners) parsed.partners = [];
+    if (!parsed.teams) parsed.teams = [
+      { id:1, name:'Team Nishmitha', leader:'Nishmitha', leaderEmail:'', members:[] },
+      { id:2, name:'Team Pradeep', leader:'Pradeep', leaderEmail:'', members:[] },
+      { id:3, name:'Team Manjunath', leader:'Manjunath', leaderEmail:'', members:[] },
+      { id:4, name:'Team Shrishanth', leader:'Shrishanth', leaderEmail:'', members:[] }
+    ];
+    return parsed;
+  }
+  const emptyContact = {gstin:'',pan:'',tan:'',email:'',phone:'',phone2:'',address:''};
+  const emptyPortals = {gst_id:'',gst_pw:'',it_id:'',it_pw:'',tds_id:'',tds_pw:'',pf_id:'',pf_pw:'',esi_id:'',esi_pw:'',pt_id:'',pt_pw:''};
+  return {
+    users: [
+      { id: 1, name: "Deekshitha", username: "Deekshitha", password: "12345", role: "Associate" },
+      { id: 2, name: "Nishmitha", username: "Nishmitha", password: "12345", role: "Associate" },
+      { id: 3, name: "Arun", username: "Arun", password: "12345", role: "Associate" }
+    ],
+    clients: [
+      { id:1, name:"St Mary's Electricals Karnataka", resp:"Arun", team:'Team Nishmitha', type:"Inhouse", compliances:{gstr1:true,gstr3b:true,tds:true,pf:false,pt:false,esi:false,accounting:true}, contact:{...emptyContact}, portals:{...emptyPortals} },
+      { id:2, name:"Sumukha Electricals", resp:"Arun", team:'Team Nishmitha', type:"Inhouse", compliances:{gstr1:true,gstr3b:true,tds:true,pf:false,pt:false,esi:false,accounting:true}, contact:{...emptyContact}, portals:{...emptyPortals} },
+      { id:3, name:"PRATHAMA SRSTI (Composition)", resp:"Deekshitha", team:'Team Nishmitha', type:"Inhouse", compliances:{gstr1:true,gstr3b:true,tds:false,pf:false,pt:false,esi:false,accounting:false}, contact:{...emptyContact}, portals:{...emptyPortals} },
+      { id:4, name:"Resourcepool Services", resp:"Deekshitha", team:'Team Nishmitha', type:"Inhouse", compliances:{gstr1:true,gstr3b:true,tds:true,pf:true,pt:true,esi:true,accounting:true}, contact:{...emptyContact}, portals:{...emptyPortals} },
+      { id:5, name:"TSR Infraa", resp:"Deekshitha", team:'Team Nishmitha', type:"Inhouse", compliances:{gstr1:true,gstr3b:true,tds:true,pf:false,pt:false,esi:false,accounting:false}, contact:{...emptyContact}, portals:{...emptyPortals} },
+      { id:6, name:"Adde Enterprises", resp:"Nishmitha", team:'Team Nishmitha', type:"Inhouse", compliances:{gstr1:true,gstr3b:true,tds:true,pf:false,pt:false,esi:false,accounting:true}, contact:{...emptyContact}, portals:{...emptyPortals} },
+      { id:7, name:"VIH Capital Advisory Pvt Ltd", resp:"Nishmitha", team:'Team Nishmitha', type:"Inhouse", compliances:{gstr1:false,gstr3b:false,tds:true,pf:true,pt:true,esi:false,accounting:true}, contact:{...emptyContact}, portals:{...emptyPortals} },
+      { id:8, name:"FISCALEYE PRIVATE LIMITED", resp:"Nishmitha", team:'Team Nishmitha', type:"Inhouse", compliances:{gstr1:true,gstr3b:true,tds:true,pf:true,pt:true,esi:true,accounting:true}, contact:{...emptyContact}, portals:{...emptyPortals} }
+    ],
+    partners: [],
+    teams: [
+      { id:1, name:'Team Nishmitha', leader:'Nishmitha', leaderEmail:'', members:[] },
+      { id:2, name:'Team Pradeep', leader:'Pradeep', leaderEmail:'', members:[] },
+      { id:3, name:'Team Manjunath', leader:'Manjunath', leaderEmail:'', members:[] },
+      { id:4, name:'Team Shrishanth', leader:'Shrishanth', leaderEmail:'', members:[] }
+    ],
+    filings: {},
+    remarks: {},
+    dueDates: [
+      { id:'tds', name:'TDS Payment', day:7, rule:'7th of next month', builtin:true },
+      { id:'gstr1', name:'GSTR-1', day:11, rule:'11th of next month', builtin:true },
+      { id:'gstr3b', name:'GSTR-3B', day:20, rule:'20th of next month', builtin:true },
+      { id:'esi', name:'ESI', day:15, rule:'15th of next month', builtin:true },
+      { id:'pf', name:'PF', day:15, rule:'15th of next month', builtin:true },
+      { id:'pt', name:'PT', day:20, rule:'20th of next month', builtin:true }
+    ],
+    ddPassword: 'Chaa@12345'
+  };
+}
+
+let db = loadDB();
+let currentUser = null;
+let dueDateUnlocked = false;
+let editingClientId = null;
+let editingDueDateId = null;
+let editingUserId = null;
+let editingTeamId = null;
+let editingMemberTeamId = null;
+let editingMemberIdx = null;
+let editingPartnerId = null;
+let cdType = 'Inhouse';
+let cdCompliances = {};
+
+function saveDB() { localStorage.setItem('complianceHubV4', JSON.stringify(db)); }
+
+// Helper: rebuild team dropdown
+function buildTeamDropdown(selectId, selected) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— No Team —</option>' +
+    db.teams.map(t => `<option value="${t.name}" ${selected===t.name?'selected':''}>${t.name}</option>`).join('');
+}
+
+// =====================================================
+//  LOGIN
+// =====================================================
+function renderLoginUsers() {
+  const grid = document.getElementById('loginUserGrid');
+  grid.innerHTML = db.users.map((u, i) => `
+    <div class="login-user-btn" id="lub_${u.id}" onclick="selectLoginUser(${u.id})">
+      <div class="login-user-avatar ${getAvColor(i)}">${getInitials(u.name)}</div>
+      <div class="login-user-name">${u.name}</div>
+      <div class="login-user-role">${u.role || 'Staff'}</div>
+    </div>`).join('');
+}
+
+let selectedLoginUserId = null;
+function selectLoginUser(id) {
+  selectedLoginUserId = id;
+  document.querySelectorAll('.login-user-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('lub_' + id).classList.add('selected');
+  document.getElementById('loginPassword').focus();
+  document.getElementById('loginError').textContent = '';
+}
+
+function doLogin() {
+  if (!selectedLoginUserId) { document.getElementById('loginError').textContent = '⚠️ Please select an account first.'; return; }
+  const pw = document.getElementById('loginPassword').value;
+  const user = db.users.find(u => u.id === selectedLoginUserId);
+  if (!user) return;
+  if (pw === user.password) {
+    currentUser = user;
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('loginError').textContent = '';
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appScreen').style.display = 'block';
+    // Set topbar user
+    const idx = db.users.findIndex(u => u.id === user.id);
+    const av = document.getElementById('topbarAvatar');
+    av.textContent = getInitials(user.name);
+    av.className = `login-user-avatar user-chip-avatar ${getAvColor(idx)}`;
+    document.getElementById('topbarName').textContent = user.name;
+    initMonthSelectors();
+    renderClients();
+  } else {
+    document.getElementById('loginError').textContent = '❌ Incorrect password. Try again.';
+    document.getElementById('loginPassword').value = '';
+  }
+}
+
+function logout() {
+  currentUser = null;
+  selectedLoginUserId = null;
+  dueDateUnlocked = false;
+  document.getElementById('appScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.querySelectorAll('.login-user-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('loginPassword').value = '';
+  renderLoginUsers();
+}
+
+// =====================================================
+//  NAVIGATION
+// =====================================================
+function switchTab(tab, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + tab).classList.add('active');
+  el.classList.add('active');
+  if (tab === 'clients') renderClients();
+  if (tab === 'status') renderStatus();
+  if (tab === 'duedates') renderDueDatesPage();
+  if (tab === 'teams') renderTeams();
+  if (tab === 'users') renderUsers();
+}
+
+function initMonthSelectors() {
+  ['statusMonth','cd_month','ddMonth'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    sel.innerHTML = '';
+    MONTHS.forEach(m => { const o = document.createElement('option'); o.value = m; o.text = m; sel.appendChild(o); });
+    sel.value = MONTHS[0];
+  });
+}
+
+// =====================================================
+//  DASHBOARD 1: CLIENTS
+// =====================================================
+function renderClients() {
+  const search = (document.getElementById('clientSearch').value || '').toLowerCase();
+  const grid = document.getElementById('clientsGrid');
+  const filtered = db.clients.filter(c => c.name.toLowerCase().includes(search) || c.resp.toLowerCase().includes(search));
+  document.getElementById('client-count-label').textContent = `${filtered.length} client${filtered.length !== 1 ? 's' : ''}`;
+  grid.innerHTML = filtered.map(c => {
+    const typeClass = c.type === 'Inhouse' ? 'inhouse' : 'outsourced';
+    const typeBadge = c.type === 'Inhouse' ? 'badge-inhouse' : 'badge-outsourced';
+    const compBadges = COMPLIANCES.map(k => c.compliances[k]
+      ? `<span class="badge badge-compliance">${COMP_LABELS[k]}</span>`
+      : `<span class="badge badge-na-comp">${COMP_LABELS[k]}</span>`).join('');
+    return `<div class="client-card ${typeClass}" onclick="openClientDetail(${c.id})">
+      <div class="client-card-actions">
+        <button class="btn btn-accent btn-sm" onclick="event.stopPropagation();openEditClientModal(${c.id})">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteClient(${c.id})">🗑️</button>
+      </div>
+      <div class="client-card-name">${c.name}</div>
+      <div class="client-card-meta">
+        <span class="badge badge-resp">👤 ${c.resp}</span>
+        <span class="badge ${typeBadge}">${c.type}</span>
+        ${c.team ? `<span class="badge" style="background:#e8f4fd;color:#0369a1;font-size:0.7em;">🏢 ${c.team}</span>` : ''}
+        ${c.contact && c.contact.gstin ? `<span class="badge" style="background:#e8f5e9;color:#1b5e20;font-size:0.7em;">GST: ${c.contact.gstin}</span>` : ''}
+      </div>
+      <div class="client-card-compliances">${compBadges}</div>
+      ${c.contact && (c.contact.phone || c.contact.email) ? `<div style="margin-top:10px;font-size:0.78em;color:var(--muted);">${c.contact.phone ? '📞 '+c.contact.phone : ''}${c.contact.phone && c.contact.email ? ' &nbsp;' : ''}${c.contact.email ? '✉️ '+c.contact.email : ''}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function deleteClient(id) {
+  if (!confirm('Delete this client?')) return;
+  db.clients = db.clients.filter(c => c.id !== id);
+  Object.keys(db.filings).forEach(m => { if (db.filings[m][id]) delete db.filings[m][id]; });
+  saveDB(); renderClients(); showToast('Client deleted');
+}
+
+// =====================================================
+//  CLIENT DETAIL MODAL
+// =====================================================
+function openClientDetail(id) {
+  editingClientId = id;
+  const c = db.clients.find(x => x.id === id);
+  // Reset to first tab
+  switchModalTab('tab-general', document.querySelector('#clientDetailModal .modal-tab-btn'));
+  document.getElementById('cdModalTitle').textContent = c.name;
+  document.getElementById('cd_name').value = c.name;
+  document.getElementById('cd_resp').value = c.resp;
+  cdType = c.type;
+  cdCompliances = { ...c.compliances };
+  document.getElementById('tb_inhouse').classList.toggle('active', c.type === 'Inhouse');
+  document.getElementById('tb_outsourced').classList.toggle('active', c.type === 'Outsourced');
+  document.querySelectorAll('#complianceToggles .toggle-btn').forEach(btn => {
+    const m = btn.getAttribute('onclick').match(/'(\w+)'/);
+    if (m) btn.classList.toggle('active', !!cdCompliances[m[1]]);
+  });
+
+  // Team dropdown
+  buildTeamDropdown('cd_team', c.team || '');
+
+  // Contact & IDs
+  const ct = c.contact || {};
+  ['gstin','pan','tan','email','phone','phone2','address'].forEach(f => {
+    const el = document.getElementById('cd_' + f);
+    if (el) el.value = ct[f] || '';
+  });
+  // Validate GSTIN on open and clear phone errors
+  validateGSTIN(ct.gstin || '');
+  document.getElementById('cd_phone_err').textContent = '';
+  document.getElementById('cd_phone2_err').textContent = '';
+
+  // Portal credentials
+  const pt = c.portals || {};
+  ['gst_id','gst_pw','it_id','it_pw','tds_id','tds_pw','pf_id','pf_pw','esi_id','esi_pw','pt_id','pt_pw'].forEach(f => {
+    const el = document.getElementById('cd_' + f);
+    if (el) el.value = pt[f] || '';
+  });
+
+  // Filings tab
+  document.getElementById('cd_month').value = MONTHS[0];
+  renderClientMonthStatus();
+  const mo = MONTHS[0];
+  document.getElementById('cd_remark').value = (db.remarks[mo] && db.remarks[mo][id]) || '';
+  openModal('clientDetailModal');
+}
+
+function renderClientMonthStatus() {
+  const id = editingClientId;
+  const c = db.clients.find(x => x.id === id);
+  const m = document.getElementById('cd_month').value;
+  const grid = document.getElementById('cdStatusGrid');
+  const filings = (db.filings[m] && db.filings[m][id]) || {};
+  const applicable = COMPLIANCES.filter(k => c.compliances[k]);
+  if (applicable.length === 0) { grid.innerHTML = '<div class="text-muted">No compliances applicable.</div>'; return; }
+  grid.innerHTML = applicable.map(k => {
+    const val = filings[k] || 'Pending';
+    return `<div class="compliance-status-item">
+      <label>${COMP_LABELS[k]}</label>
+      <select id="cdst_${k}">${STATUS_OPTS.map(o=>`<option ${val===o?'selected':''}>${o}</option>`).join('')}</select>
+    </div>`;
+  }).join('');
+  document.getElementById('cd_remark').value = (db.remarks[m] && db.remarks[m][id]) || '';
+}
+
+function setType(t) {
+  cdType = t;
+  document.getElementById('tb_inhouse').classList.toggle('active', t === 'Inhouse');
+  document.getElementById('tb_outsourced').classList.toggle('active', t === 'Outsourced');
+}
+
+function toggleCompliance(btn, key) {
+  cdCompliances[key] = !cdCompliances[key];
+  btn.classList.toggle('active', !!cdCompliances[key]);
+}
+
+function saveClientDetail() {
+  const id = editingClientId;
+  const c = db.clients.find(x => x.id === id);
+
+  // ---- Validate phone numbers ----
+  const phone = document.getElementById('cd_phone').value.trim();
+  const phone2 = document.getElementById('cd_phone2').value.trim();
+  if (phone && !/^\d{10}$/.test(phone)) {
+    // Switch to contact tab to show error
+    switchModalTab('tab-contact', document.querySelector('#clientDetailModal .modal-tab-btn:nth-child(2)'));
+    document.getElementById('cd_phone_err').textContent = '❌ Contact number must be exactly 10 digits.';
+    document.getElementById('cd_phone').focus();
+    return;
+  }
+  if (phone2 && !/^\d{10}$/.test(phone2)) {
+    switchModalTab('tab-contact', document.querySelector('#clientDetailModal .modal-tab-btn:nth-child(2)'));
+    document.getElementById('cd_phone2_err').textContent = '❌ Alternate number must be exactly 10 digits.';
+    document.getElementById('cd_phone2').focus();
+    return;
+  }
+
+  // ---- Validate GSTIN ----
+  const gstin = document.getElementById('cd_gstin').value.trim().toUpperCase();
+  if (gstin && gstin.length > 0) {
+    const gstinResult = parseGSTIN(gstin);
+    if (!gstinResult.valid) {
+      switchModalTab('tab-contact', document.querySelector('#clientDetailModal .modal-tab-btn:nth-child(2)'));
+      document.getElementById('gstin_feedback').style.display = 'block';
+      document.getElementById('gstin_feedback').innerHTML = `<div class="gstin-info-box gstin-info-error">❌ Invalid GSTIN — ${gstinResult.error}</div>`;
+      document.getElementById('cd_gstin').focus();
+      return;
+    }
+  }
+
+  // ---- Track changes for detailed audit log ----
+  const changes = [];
+
+  const newName = document.getElementById('cd_name').value.trim() || c.name;
+  const newResp = document.getElementById('cd_resp').value.trim() || c.resp;
+  const newTeam = document.getElementById('cd_team').value;
+  if (newName !== c.name) changes.push(`Name: "${c.name}" → "${newName}"`);
+  if (newResp !== c.resp) changes.push(`Responsible: "${c.resp}" → "${newResp}"`);
+  if (newTeam !== (c.team || '')) changes.push(`Team: "${c.team||'None'}" → "${newTeam||'None'}"`);
+  if (cdType !== c.type) changes.push(`Type: ${c.type} → ${cdType}`);
+
+  // Compliance changes
+  COMPLIANCES.forEach(k => {
+    const wasOn = !!c.compliances[k];
+    const isOn = !!cdCompliances[k];
+    if (wasOn !== isOn) changes.push(`${COMP_LABELS[k]}: ${wasOn ? 'Enabled' : 'Disabled'} → ${isOn ? 'Enabled' : 'Disabled'}`);
+  });
+
+  c.name = newName;
+  c.resp = newResp;
+  c.team = newTeam;
+  c.type = cdType;
+  c.compliances = { ...cdCompliances };
+
+  // Contact & IDs — track field-level changes
+  if (!c.contact) c.contact = {};
+  const contactLabels = { gstin:'GSTIN', pan:'PAN', tan:'TAN', email:'Email', phone:'Contact', phone2:'Alt Contact', address:'Address' };
+  ['gstin','pan','tan','email','phone','phone2','address'].forEach(f => {
+    const el = document.getElementById('cd_' + f);
+    if (!el) return;
+    const oldVal = c.contact[f] || '';
+    const newVal = el.value.trim();
+    if (oldVal !== newVal) {
+      const label = contactLabels[f] || f;
+      if (f === 'pan' || f === 'tan') {
+        changes.push(`${label}: "${oldVal||'(empty)'}" → "${newVal||'(empty)'}"`);
+      } else if (f === 'phone' || f === 'phone2') {
+        changes.push(`${label}: "${oldVal||'(empty)'}" → "${newVal||'(empty)'}"`);
+      } else if (f === 'gstin') {
+        changes.push(`GSTIN: "${oldVal||'(empty)'}" → "${newVal||'(empty)'}"`);
+      } else {
+        changes.push(`${label} updated`);
+      }
+    }
+    c.contact[f] = f === 'gstin' ? newVal.toUpperCase() : newVal;
+  });
+
+  // Portal credentials
+  if (!c.portals) c.portals = {};
+  let portalChanged = false;
+  ['gst_id','gst_pw','it_id','it_pw','tds_id','tds_pw','pf_id','pf_pw','esi_id','esi_pw','pt_id','pt_pw'].forEach(f => {
+    const el = document.getElementById('cd_' + f);
+    if (el) {
+      if (c.portals[f] !== el.value) portalChanged = true;
+      c.portals[f] = el.value;
+    }
+  });
+  if (portalChanged) changes.push('Portal credentials updated');
+
+  // Filings
+  const m = document.getElementById('cd_month').value;
+  if (!db.filings[m]) db.filings[m] = {};
+  if (!db.filings[m][id]) db.filings[m][id] = {};
+  const changedStatuses = [];
+  COMPLIANCES.filter(k => c.compliances[k]).forEach(k => {
+    const el = document.getElementById('cdst_' + k);
+    if (el) {
+      const oldVal = db.filings[m][id][k] || 'Pending';
+      const newVal = el.value;
+      if (oldVal !== newVal) changedStatuses.push(`${COMP_LABELS[k]}: ${oldVal} → ${newVal}`);
+      db.filings[m][id][k] = newVal;
+    }
+  });
+  if (!db.remarks[m]) db.remarks[m] = {};
+  const oldRemark = db.remarks[m][id] || '';
+  const newRemark = document.getElementById('cd_remark').value;
+  if (oldRemark !== newRemark) changes.push(`Remarks updated`);
+  db.remarks[m][id] = newRemark;
+
+  // ---- Audit log ----
+  if (!db.auditLog) db.auditLog = {};
+  if (changes.length > 0) {
+    addAuditLog(id, 'edit', `Edited: ${changes.join(' | ')}`, 'edit');
+  }
+  if (changedStatuses.length > 0) {
+    addAuditLog(id, 'status', `[${m}] Filing status — ${changedStatuses.join(' | ')}`, 'status');
+  }
+  if (changes.length === 0 && changedStatuses.length === 0) {
+    addAuditLog(id, 'edit', `Opened & saved with no changes`, 'edit');
+  }
+
+  saveDB(); renderClients(); closeModal('clientDetailModal'); showToast('✅ Client saved successfully!');
+}
+
+// =====================================================
+//  ADD / EDIT CLIENT MODAL
+// =====================================================
+let acEditId = null;
+function openAddClientModal() {
+  acEditId = null;
+  document.getElementById('addClientTitle').textContent = 'Add New Client';
+  document.getElementById('saveClientBtn').textContent = '➕ Add Client';
+  document.getElementById('ac_name').value = '';
+  document.getElementById('ac_resp').value = '';
+  document.getElementById('ac_type').value = 'Inhouse';
+  document.querySelectorAll('#ac_compToggles .toggle-btn').forEach(b => b.classList.remove('active'));
+  openModal('addClientModal');
+}
+
+function openEditClientModal(id) {
+  const c = db.clients.find(x => x.id === id);
+  acEditId = id;
+  document.getElementById('addClientTitle').textContent = 'Edit Client';
+  document.getElementById('saveClientBtn').textContent = '💾 Save Changes';
+  document.getElementById('ac_name').value = c.name;
+  document.getElementById('ac_resp').value = c.resp;
+  document.getElementById('ac_type').value = c.type;
+  const labels = ['GSTR-1','GSTR-3B','TDS','PF','PT','ESI','Accounting'];
+  document.querySelectorAll('#ac_compToggles .toggle-btn').forEach((btn, i) => {
+    const key = COMP_KEYS_MAP[labels[i]];
+    btn.classList.toggle('active', !!c.compliances[key]);
+  });
+  openModal('addClientModal');
+}
+
+function saveNewClient() {
+  const name = document.getElementById('ac_name').value.trim();
+  const resp = document.getElementById('ac_resp').value.trim();
+  const type = document.getElementById('ac_type').value;
+  if (!name || !resp) { showToast('Please fill all fields'); return; }
+  const labels = ['GSTR-1','GSTR-3B','TDS','PF','PT','ESI','Accounting'];
+  const comps = {};
+  COMPLIANCES.forEach(k => comps[k] = false);
+  document.querySelectorAll('#ac_compToggles .toggle-btn').forEach((btn, i) => {
+    comps[COMP_KEYS_MAP[labels[i]]] = btn.classList.contains('active');
+  });
+  if (acEditId) {
+    const c = db.clients.find(x => x.id === acEditId);
+    c.name = name; c.resp = resp; c.type = type; c.compliances = comps;
+    if (!c.contact) c.contact = {gstin:'',pan:'',tan:'',email:'',phone:'',phone2:'',address:''};
+    if (!c.portals) c.portals = {gst_id:'',gst_pw:'',it_id:'',it_pw:'',tds_id:'',tds_pw:'',pf_id:'',pf_pw:'',esi_id:'',esi_pw:'',pt_id:'',pt_pw:''};
+    showToast('Client updated');
+  } else {
+    db.clients.push({ id: Date.now(), name, resp, type, compliances: comps, contact:{gstin:'',pan:'',tan:'',email:'',phone:'',phone2:'',address:''}, portals:{gst_id:'',gst_pw:'',it_id:'',it_pw:'',tds_id:'',tds_pw:'',pf_id:'',pf_pw:'',esi_id:'',esi_pw:'',pt_id:'',pt_pw:''} });
+    showToast('Client added');
+  }
+  saveDB(); renderClients(); closeModal('addClientModal');
+}
+
+// =====================================================
+//  DASHBOARD 2: STATUS
+// =====================================================
+function renderStatus() {
+  const m = document.getElementById('statusMonth').value;
+  const stats = {};
+  COMPLIANCES.forEach(k => stats[k] = { filed:0, pending:0, inprogress:0, na:0, total:0 });
+  db.clients.forEach(c => {
+    COMPLIANCES.forEach(k => {
+      if (!c.compliances[k]) return;
+      stats[k].total++;
+      const st = (db.filings[m] && db.filings[m][c.id] && db.filings[m][c.id][k]) || 'Pending';
+      if (st==='Filed'||st==='Paid') stats[k].filed++;
+      else if (st==='In Progress') stats[k].inprogress++;
+      else if (st==='NA') stats[k].na++;
+      else stats[k].pending++;
+    });
+  });
+  document.getElementById('statsRow').innerHTML = COMPLIANCES.map(k => {
+    const s = stats[k];
+    const pct = s.total > 0 ? Math.round((s.filed/s.total)*100) : 0;
+    return `<div class="stat-tile">
+      <div class="stat-tile-label">${COMP_LABELS[k]}</div>
+      <div class="stat-tile-nums">
+        <div class="stat-num"><div class="stat-num-val filed-col">${s.filed}</div><div class="stat-num-lbl">Filed</div></div>
+        <div class="stat-num"><div class="stat-num-val pending-col">${s.pending}</div><div class="stat-num-lbl">Pending</div></div>
+        <div class="stat-num"><div class="stat-num-val inprogress-col">${s.inprogress}</div><div class="stat-num-lbl">In Prog</div></div>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+      <div style="font-size:0.75em;color:var(--muted);margin-top:4px;">${pct}% complete</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('compTableBody').innerHTML = db.clients.map((c,i) => {
+    const f = (db.filings[m] && db.filings[m][c.id]) || {};
+    const remark = (db.remarks[m] && db.remarks[m][c.id]) || '';
+    const cells = COMPLIANCES.map(k => {
+      if (!c.compliances[k]) return `<td><span class="status-pill pill-none">—</span></td>`;
+      const st = f[k] || 'Pending';
+      const cls = st==='Filed'?'pill-filed':st==='Paid'?'pill-paid':st==='In Progress'?'pill-inprogress':st==='NA'?'pill-na':'pill-pending';
+      return `<td><span class="status-pill ${cls}">${st}</span></td>`;
+    }).join('');
+    const applicable = COMPLIANCES.filter(k => c.compliances[k]);
+    const statuses = applicable.map(k => f[k] || 'Pending');
+    let rowCls = '';
+    if (applicable.length > 0) {
+      const allDone = statuses.every(s => s==='Filed'||s==='Paid'||s==='NA');
+      const allPending = statuses.every(s => s==='Pending');
+      if (allDone) rowCls='row-green'; else if (allPending) rowCls='row-red'; else rowCls='row-yellow';
+    }
+    const typeBadge = c.type==='Inhouse'?'badge-inhouse':'badge-outsourced';
+    return `<tr class="${rowCls}"><td>${i+1}</td><td><strong>${c.name}</strong></td><td>${c.resp}</td><td><span class="badge ${typeBadge}">${c.type}</span></td>${cells}<td style="font-size:0.82em;color:var(--muted);">${remark}</td></tr>`;
+  }).join('');
+}
+
+function exportCSV() {
+  const m = document.getElementById('statusMonth').value;
+  let csv = `Compliance Report - ${m}\nSL,Client Name,Responsible,Type,GSTR-1,GSTR-3B,TDS,PF,PT,ESI,Accounting,Remarks\n`;
+  db.clients.forEach((c,i) => {
+    const f = (db.filings[m] && db.filings[m][c.id]) || {};
+    const r = (db.remarks[m] && db.remarks[m][c.id]) || '';
+    const vals = COMPLIANCES.map(k => c.compliances[k] ? (f[k]||'Pending') : 'NA').join(',');
+    csv += `${i+1},"${c.name}","${c.resp}",${c.type},${vals},"${r}"\n`;
+  });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = `Compliance_${m.replace(' ','_')}.csv`;
+  a.click();
+  showToast('CSV exported!');
+}
+
+// =====================================================
+//  DASHBOARD 3: DUE DATES
+// =====================================================
+function renderDueDatesPage() {
+  document.getElementById('pwGate').style.display = dueDateUnlocked ? 'none' : 'block';
+  document.getElementById('dueDateSection').classList.toggle('unlocked', dueDateUnlocked);
+  if (dueDateUnlocked) renderDueDates();
+}
+
+function checkDdPassword() {
+  const pw = document.getElementById('pwInput').value;
+  if (pw === db.ddPassword) {
+    dueDateUnlocked = true;
+    document.getElementById('pwError').textContent = '';
+    document.getElementById('pwInput').value = '';
+    renderDueDatesPage();
+  } else {
+    document.getElementById('pwError').textContent = '❌ Incorrect password.';
+  }
+}
+
+function lockDueDates() { dueDateUnlocked = false; renderDueDatesPage(); }
+
+function renderDueDates() {
+  const m = document.getElementById('ddMonth').value;
+  document.getElementById('ddMonthLabel').textContent = m;
+  const [mName, year] = m.split(' ');
+  const MNAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const mIdx = MNAMES.indexOf(mName);
+  const nextMIdx = (mIdx+1)%12;
+  const nextYear = nextMIdx===0 ? parseInt(year)+1 : parseInt(year);
+  const today = new Date();
+  document.getElementById('dueTableBody').innerHTML = db.dueDates.map(dd => {
+    const dueDate = new Date(nextYear, nextMIdx, dd.day);
+    const diff = Math.ceil((dueDate-today)/(1000*60*60*24));
+    const cpClass = diff<0?'countdown-overdue':diff<=3?'countdown-urgent':diff<=10?'countdown-ok':'countdown-future';
+    const cpText = diff<0?`${Math.abs(diff)} days overdue`:diff<=3?`${diff} days left ⚠️`:`${diff} days left`;
+    const dueDateStr = dueDate.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    return `<tr>
+      <td><strong>${dd.name}</strong></td>
+      <td>${dueDateStr}</td>
+      <td><span class="countdown-pill ${cpClass}">${cpText}</span></td>
+      <td style="color:var(--muted);font-size:0.85em;">${dd.rule}</td>
+      <td><div class="flex gap-2">
+        <button class="btn btn-outline btn-sm" onclick="openEditDueDateModal('${dd.id}')">✏️ Edit</button>
+        ${!dd.builtin?`<button class="btn btn-danger btn-sm" onclick="deleteDueDate('${dd.id}')">🗑️</button>`:''}
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function openAddDueDateModal() {
+  editingDueDateId = null;
+  document.getElementById('ddModalTitle').textContent = 'Add Due Date';
+  document.getElementById('saveDdBtn').textContent = 'Add';
+  ['dd_name','dd_rule'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('dd_day').value='';
+  openModal('addDueDateModal');
+}
+
+function openEditDueDateModal(id) {
+  editingDueDateId = id;
+  const dd = db.dueDates.find(x=>x.id==id);
+  document.getElementById('ddModalTitle').textContent = 'Edit Due Date';
+  document.getElementById('saveDdBtn').textContent = 'Save Changes';
+  document.getElementById('dd_name').value = dd.name;
+  document.getElementById('dd_day').value = dd.day;
+  document.getElementById('dd_rule').value = dd.rule;
+  openModal('addDueDateModal');
+}
+
+function saveDueDate() {
+  const name = document.getElementById('dd_name').value.trim();
+  const day = parseInt(document.getElementById('dd_day').value);
+  const rule = document.getElementById('dd_rule').value.trim();
+  if (!name||!day) { showToast('Fill all fields'); return; }
+  if (editingDueDateId) {
+    const dd = db.dueDates.find(x=>x.id==editingDueDateId);
+    dd.name=name; dd.day=day; dd.rule=rule;
+  } else {
+    db.dueDates.push({ id:'custom_'+Date.now(), name, day, rule, builtin:false });
+  }
+  saveDB(); closeModal('addDueDateModal'); renderDueDates(); showToast('Saved');
+}
+
+function deleteDueDate(id) {
+  if (!confirm('Delete this due date?')) return;
+  db.dueDates = db.dueDates.filter(x=>x.id!=id);
+  saveDB(); renderDueDates(); showToast('Deleted');
+}
+
+function openChangeDdPwModal() {
+  ['cdp_current','cdp_new','cdp_confirm'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cdpError').textContent='';
+  openModal('changeDdPwModal');
+}
+
+function changeDdPassword() {
+  const cur=document.getElementById('cdp_current').value;
+  const nw=document.getElementById('cdp_new').value;
+  const conf=document.getElementById('cdp_confirm').value;
+  if (cur!==db.ddPassword){document.getElementById('cdpError').textContent='Current password incorrect.';return;}
+  if (nw.length<4){document.getElementById('cdpError').textContent='Min 4 characters.';return;}
+  if (nw!==conf){document.getElementById('cdpError').textContent='Passwords do not match.';return;}
+  db.ddPassword=nw; saveDB(); closeModal('changeDdPwModal'); showToast('Due date password updated!');
+}
+
+// =====================================================
+//  USER MANAGEMENT
+// =====================================================
+function renderUsers() {
+  document.getElementById('usersTableBody').innerHTML = db.users.map((u,i) => {
+    const isMe = currentUser && currentUser.id === u.id;
+    const mobileStatus = '';
+    return `<tr ${isMe ? 'style="background:#f0f7ff;"' : ''}>
+      <td>${i+1}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="login-user-avatar ${getAvColor(i)}" style="width:34px;height:34px;font-size:0.8em;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;">${getInitials(u.name)}</div>
+          <div>
+            <strong>${u.name}</strong> ${isMe ? '<span style="font-size:0.72em;color:#1d4ed8;font-weight:700;background:#dbeafe;padding:1px 6px;border-radius:8px;">YOU</span>' : ''}
+            <div style="margin-top:3px;">${mobileStatus}</div>
+          </div>
+        </div>
+      </td>
+      <td>${u.username}</td>
+      <td>${u.role||'Staff'}</td>
+      <td>
+        <div class="flex gap-2">
+          <button class="btn btn-accent btn-sm" onclick="openEditUserModal(${u.id})">✏️ Edit</button>
+          ${db.users.length>1 && !isMe ? `<button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">🗑️</button>` : ''}
+          ${isMe ? '<span style="font-size:0.75em;color:var(--muted);">Use ⚙️ Profile to change password</span>' : ''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openAddUserModal() {
+  editingUserId = null;
+  document.getElementById('addUserTitle').textContent = 'Add New User';
+  document.getElementById('saveUserBtn').textContent = '➕ Add User';
+  ['au_name','au_username','au_password','au_role'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const pwGroup = document.getElementById('au_password').closest('.form-group');
+  if (pwGroup) { pwGroup.style.display = 'block'; pwGroup.querySelector('label').textContent = 'Password'; }
+  document.getElementById('auError').textContent = '';
+  openModal('addUserModal');
+}
+
+function openEditUserModal(id) {
+  const u = db.users.find(x=>x.id===id);
+  editingUserId = id;
+  document.getElementById('addUserTitle').textContent = 'Edit User';
+  document.getElementById('saveUserBtn').textContent = '💾 Save';
+  document.getElementById('au_name').value = u.name;
+  document.getElementById('au_username').value = u.username;
+  document.getElementById('au_role').value = u.role || '';
+  // Hide password field — passwords can only be changed by the user themselves via OTP
+  const pwGroup = document.getElementById('au_password').closest('.form-group');
+  if (pwGroup) pwGroup.style.display = 'none';
+  document.getElementById('auError').textContent = '';
+  openModal('addUserModal');
+}
+
+function saveUser() {
+  const name = document.getElementById('au_name').value.trim();
+  const username = document.getElementById('au_username').value.trim();
+  const pw = document.getElementById('au_password').value;
+  const role = document.getElementById('au_role').value.trim();
+  if (!name || !username) { document.getElementById('auError').textContent = 'Name and username are required.'; return; }
+  if (editingUserId) {
+    const u = db.users.find(x => x.id === editingUserId);
+    u.name = name; u.username = username; u.role = role;
+    // Password is only changeable by the user themselves via ⚙️ Profile
+    showToast('✅ User updated');
+  } else {
+    if (!pw || pw.length < 4) { document.getElementById('auError').textContent = 'Password required (min 4 chars).'; return; }
+    const dup = db.users.find(x => x.username.toLowerCase() === username.toLowerCase());
+    if (dup) { document.getElementById('auError').textContent = 'Username already exists.'; return; }
+    db.users.push({ id: Date.now(), name, username, mobile: '', password: pw, role });
+    showToast('✅ User added — they can set their mobile via ⚙️ Profile');
+  }
+  saveDB(); renderUsers(); renderLoginUsers(); closeModal('addUserModal');
+}
+
+function deleteUser(id) {
+  if (currentUser && currentUser.id===id){showToast("You can't delete yourself!");return;}
+  if (!confirm('Delete this user?')) return;
+  db.users = db.users.filter(x=>x.id!==id);
+  saveDB(); renderUsers(); renderLoginUsers(); showToast('User deleted');
+}
+
+// =====================================================
+//  MY PROFILE & OTP PASSWORD CHANGE
+// =====================================================
+function openMyProfileModal() {
+  if (!currentUser) return;
+  const idx = db.users.findIndex(u => u.id === currentUser.id);
+  const u = db.users.find(x => x.id === currentUser.id);
+  // Set avatar
+  const av = document.getElementById('profileAvatar');
+  av.textContent = getInitials(currentUser.name);
+  av.className = `login-user-avatar ${getAvColor(idx)}`;
+  // Set profile info
+  document.getElementById('profileName').textContent = currentUser.name;
+  document.getElementById('profileRole').textContent = currentUser.role || 'Staff';
+  document.getElementById('profileUsername').textContent = `@${currentUser.username}`;
+  // Clear form fields
+  document.getElementById('mp_current').value = '';
+  document.getElementById('mp_new').value = '';
+  document.getElementById('mp_confirm').value = '';
+  document.getElementById('mpError').textContent = '';
+  document.getElementById('mpSuccess').style.display = 'none';
+  openModal('myProfileModal');
+}
+
+function changeMyPassword() {
+  const errEl = document.getElementById('mpError');
+  const successEl = document.getElementById('mpSuccess');
+  errEl.textContent = '';
+  successEl.style.display = 'none';
+
+  const current = document.getElementById('mp_current').value;
+  const nw = document.getElementById('mp_new').value;
+  const conf = document.getElementById('mp_confirm').value;
+
+  // Validate current password
+  const u = db.users.find(x => x.id === currentUser.id);
+  if (!current) { errEl.textContent = '⚠️ Please enter your current password.'; return; }
+  if (u.password !== current) { errEl.textContent = '❌ Current password is incorrect.'; return; }
+  if (!nw || nw.length < 4) { errEl.textContent = '⚠️ New password must be at least 4 characters.'; return; }
+  if (nw === current) { errEl.textContent = '⚠️ New password must be different from current password.'; return; }
+  if (nw !== conf) { errEl.textContent = '❌ New passwords do not match.'; return; }
+
+  // Save new password
+  u.password = nw;
+  currentUser = u;
+  saveDB();
+
+  // Clear fields and show success
+  document.getElementById('mp_current').value = '';
+  document.getElementById('mp_new').value = '';
+  document.getElementById('mp_confirm').value = '';
+  successEl.style.display = 'block';
+  errEl.textContent = '';
+
+  addAuditLog(null, 'system', `${u.name} changed their password`, 'edit');
+  showToast('✅ Password updated successfully!');
+  setTimeout(() => closeModal('myProfileModal'), 1500);
+}
+
+// =====================================================
+//  GSTIN VALIDATION
+// =====================================================
+const STATE_CODES = {
+  '01':'Jammu & Kashmir','02':'Himachal Pradesh','03':'Punjab','04':'Chandigarh','05':'Uttarakhand',
+  '06':'Haryana','07':'Delhi','08':'Rajasthan','09':'Uttar Pradesh','10':'Bihar',
+  '11':'Sikkim','12':'Arunachal Pradesh','13':'Nagaland','14':'Manipur','15':'Mizoram',
+  '16':'Tripura','17':'Meghalaya','18':'Assam','19':'West Bengal','20':'Jharkhand',
+  '21':'Odisha','22':'Chhattisgarh','23':'Madhya Pradesh','24':'Gujarat','25':'Daman & Diu',
+  '26':'Dadra & Nagar Haveli','27':'Maharashtra','28':'Andhra Pradesh (old)','29':'Karnataka',
+  '30':'Goa','31':'Lakshadweep','32':'Kerala','33':'Tamil Nadu','34':'Puducherry',
+  '35':'Andaman & Nicobar','36':'Telangana','37':'Andhra Pradesh','38':'Ladakh',
+  '97':'Other Territory','99':'Centre Jurisdiction'
+};
+const PAN_TYPE_MAP = {
+  'P':'Individual / Proprietor','C':'Company','H':'Hindu Undivided Family (HUF)',
+  'F':'Partnership Firm','A':'Association of Persons (AOP)','T':'Trust',
+  'B':'Body of Individuals (BOI)','L':'Local Authority',
+  'J':'Artificial Juridical Person','G':'Government'
+};
+
+function parseGSTIN(gstin) {
+  gstin = gstin.toUpperCase().trim();
+  if (gstin.length !== 15) return { valid: false, error: `Must be exactly 15 characters (currently ${gstin.length})` };
+
+  const stateCode = gstin.substring(0,2);
+  if (!/^\d{2}$/.test(stateCode)) return { valid: false, error: 'Characters 1–2 must be a numeric state code (e.g. 29 for Karnataka)' };
+  if (!STATE_CODES[stateCode]) return { valid: false, error: `Unknown state code "${stateCode}"` };
+
+  const pan = gstin.substring(2,12);
+  if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(pan)) return { valid: false, error: `Characters 3–12 must be a valid PAN format (AAAAA0000A), got "${pan}"` };
+
+  const panTypeLetter = pan[3]; // 4th letter of PAN = 6th char of GSTIN
+  const taxpayerType = PAN_TYPE_MAP[panTypeLetter];
+  if (!taxpayerType) return { valid: false, error: `4th letter of PAN "${panTypeLetter}" is not a recognised taxpayer type` };
+
+  const entityNum = gstin[12];
+  if (!/^[1-9A-Z]$/.test(entityNum)) return { valid: false, error: `Character 13 (entity number) must be 1–9 or A–Z, got "${entityNum}"` };
+
+  if (gstin[13] !== 'Z') return { valid: false, error: `Character 14 must be "Z" (default), got "${gstin[13]}"` };
+
+  if (!/^[0-9A-Z]$/.test(gstin[14])) return { valid: false, error: `Character 15 (check code) must be alphanumeric, got "${gstin[14]}"` };
+
+  return {
+    valid: true,
+    stateCode,
+    stateName: STATE_CODES[stateCode],
+    pan,
+    panTypeLetter,
+    taxpayerType,
+    entityNum,
+    checkCode: gstin[14]
+  };
+}
+
+function validateGSTIN(val) {
+  const el = document.getElementById('cd_gstin');
+  const fb = document.getElementById('gstin_feedback');
+  val = val.toUpperCase();
+  el.value = val;
+
+  if (!val || val.length === 0) {
+    el.classList.remove('gstin-valid','gstin-invalid');
+    fb.style.display = 'none';
+    return;
+  }
+
+  if (val.length < 15) {
+    el.classList.remove('gstin-valid'); el.classList.add('gstin-invalid');
+    fb.style.display = 'block';
+    fb.innerHTML = `<div class="gstin-info-box gstin-info-partial">⌨️ Keep typing — ${15 - val.length} more character${15-val.length!==1?'s':''} needed (${val.length}/15)</div>`;
+    return;
+  }
+
+  const result = parseGSTIN(val);
+  if (!result.valid) {
+    el.classList.remove('gstin-valid'); el.classList.add('gstin-invalid');
+    fb.style.display = 'block';
+    fb.innerHTML = `<div class="gstin-info-box gstin-info-error">❌ ${result.error}</div>`;
+    return;
+  }
+
+  el.classList.remove('gstin-invalid'); el.classList.add('gstin-valid');
+  fb.style.display = 'block';
+  fb.innerHTML = `<div class="gstin-info-box gstin-info-valid">
+    <div style="font-weight:700;margin-bottom:6px;">✅ Valid GSTIN</div>
+    <div class="gstin-row">
+      <span class="gstin-chip gstin-chip-state">🗺️ ${result.stateCode} — ${result.stateName}</span>
+      <span class="gstin-chip gstin-chip-pan">📄 PAN: ${result.pan}</span>
+    </div>
+    <div class="gstin-row" style="margin-top:4px;">
+      <span class="gstin-chip gstin-chip-type">👤 ${result.taxpayerType}</span>
+      <span class="gstin-chip gstin-chip-entity">Entity #${result.entityNum}</span>
+      <span class="gstin-chip gstin-chip-ok">Check: ${result.checkCode}</span>
+    </div>
+  </div>`;
+  // Auto-fill PAN if empty
+  const panEl = document.getElementById('cd_pan');
+  if (panEl && !panEl.value) panEl.value = result.pan;
+}
+
+function validatePhone(el, errId) {
+  const val = el.value.trim();
+  const errEl = document.getElementById(errId);
+  if (!errEl) return;
+  if (val === '') { errEl.textContent = ''; return; }
+  if (!/^\d+$/.test(val)) { errEl.textContent = '❌ Only digits allowed.'; return; }
+  if (val.length < 10) { errEl.textContent = `⌨️ ${10 - val.length} more digit${10-val.length!==1?'s':''} needed.`; return; }
+  if (val.length > 10) { errEl.textContent = '❌ Must be exactly 10 digits.'; return; }
+  errEl.textContent = '✅';
+  errEl.style.color = '#166534';
+}
+
+// =====================================================
+//  AUDIT LOG
+// =====================================================
+function addAuditLog(clientId, action, description, type) {
+  if (!db.auditLog) db.auditLog = {};
+  const key = clientId ? String(clientId) : 'system';
+  if (!db.auditLog[key]) db.auditLog[key] = [];
+  db.auditLog[key].unshift({
+    who: currentUser ? currentUser.name : 'System',
+    action, description, type,
+    when: new Date().toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })
+  });
+  if (db.auditLog[key].length > 200) db.auditLog[key] = db.auditLog[key].slice(0, 200);
+}
+
+function renderAuditLog(clientId) {
+  if (!db.auditLog) db.auditLog = {};
+  const logs = db.auditLog[String(clientId)] || [];
+  const wrap = document.getElementById('auditLogWrap');
+  if (logs.length === 0) {
+    wrap.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:0.85em;">No activity recorded yet.</div>';
+    return;
+  }
+  const typeBadge = { edit:'audit-edit', add:'audit-add', del:'audit-del', status:'audit-status' };
+  const typeLabel = { edit:'Edited', add:'Added', del:'Deleted', status:'Status' };
+  wrap.innerHTML = logs.map(l => `
+    <div class="audit-row">
+      <div style="flex-shrink:0;min-width:110px;">
+        <div class="audit-who">👤 ${l.who}</div>
+        <div class="audit-when">🕐 ${l.when}</div>
+      </div>
+      <div class="audit-what">
+        <span class="audit-badge ${typeBadge[l.type]||'audit-edit'}">${typeLabel[l.type]||'Updated'}</span>
+        <span style="font-size:0.88em;">${l.description}</span>
+      </div>
+    </div>`).join('');
+}
+
+// =====================================================
+//  PORTAL LINKS
+// =====================================================
+function openPortal(type) {
+  const urls = {
+    gst: "https://services.gst.gov.in/services/login",
+    it:  "https://www.incometax.gov.in/iec/foportal/",
+    tds: "https://www.tdscpc.gov.in/app/login.xhtml",
+    pf:  "https://unifiedportal-emp.epfindia.gov.in/epfo/",
+    esi: "https://esic.gov.in/",
+    pt:  "https://ptax.karnataka.gov.in"
+  };
+  if (urls[type]) window.open(urls[type], "_blank");
+}
+
+// =====================================================
+//  TEAMS DASHBOARD
+// =====================================================
+const TEAM_COLORS = ['#0f1f3d','#1a6b3a','#7b1f1f','#5c3d9e','#b8500a','#0a5f6e'];
+function getTeamColor(idx) { return TEAM_COLORS[idx % TEAM_COLORS.length]; }
+
+function renderTeams() {
+  // Partners
+  const pg = document.getElementById('partnersGrid');
+  if (!db.partners || db.partners.length === 0) {
+    pg.innerHTML = `<div style="color:var(--muted);font-size:0.9em;padding:14px;">No partners added yet. Click "➕ Add Partner" to get started.</div>`;
+  } else {
+    pg.innerHTML = db.partners.map((p, i) => `
+      <div class="partner-card">
+        <div class="partner-avatar">${getInitials(p.name)}</div>
+        <div style="flex:1;">
+          <div class="partner-name">${p.name}</div>
+          <div class="partner-role">${p.role || 'Partner'}</div>
+          ${p.email ? `<div style="font-size:0.75em;opacity:0.7;margin-top:3px;">✉️ ${p.email}</div>` : ''}
+          ${p.phone ? `<div style="font-size:0.75em;opacity:0.7;">📞 ${p.phone}</div>` : ''}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <button class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:white;border:none;cursor:pointer;" onclick="openEditPartnerModal(${i})">✏️</button>
+          <button class="btn btn-sm" style="background:rgba(231,76,60,0.7);color:white;border:none;cursor:pointer;" onclick="deletePartner(${i})">🗑️</button>
+        </div>
+      </div>`).join('');
+  }
+
+  // Teams
+  const tg = document.getElementById('teamsGrid');
+  tg.innerHTML = db.teams.map((t, ti) => {
+    const clientCount = db.clients.filter(c => c.team === t.name).length;
+    const color = getTeamColor(ti);
+    const memberRows = t.members.map((m, mi) => `
+      <div class="team-member-row">
+        <div class="team-member-info">
+          <div class="team-member-avatar" style="background:${color}20;color:${color};">${getInitials(m.name)}</div>
+          <div>
+            <div class="team-member-name">${m.name}</div>
+            <div class="team-member-role">${m.role || 'Associate'}</div>
+          </div>
+        </div>
+        <div class="team-member-actions">
+          <button class="btn btn-accent btn-sm" onclick="openEditMemberModal(${t.id},${mi})">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteMember(${t.id},${mi})">🗑️</button>
+        </div>
+      </div>`).join('');
+
+    return `<div class="team-card">
+      <div class="team-card-header" style="border-left:4px solid ${color};padding-left:16px;">
+        <div>
+          <div class="team-card-name">${t.name}</div>
+          <div style="font-size:0.78em;color:var(--muted);margin-top:3px;">
+            👤 Leader: <strong>${t.leader}</strong>
+            ${t.leaderEmail ? ` · ✉️ ${t.leaderEmail}` : ''}
+          </div>
+          <div style="font-size:0.75em;color:var(--muted);margin-top:2px;">📁 ${clientCount} client${clientCount!==1?'s':''} assigned</div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-accent btn-sm" onclick="openEditTeamModal(${t.id})">✏️ Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteTeam(${t.id})">🗑️</button>
+        </div>
+      </div>
+      <div class="team-member-list">
+        ${t.members.length > 0 ? memberRows : '<div style="color:var(--muted);font-size:0.82em;padding:8px 0;">No members yet.</div>'}
+      </div>
+      <button class="team-add-btn" onclick="openAddMemberModal(${t.id})">＋ Add Team Member</button>
+    </div>`;
+  }).join('');
+}
+
+// --- Partners ---
+function openAddPartnerModal() {
+  editingPartnerId = null;
+  document.getElementById('partnerModalTitle').textContent = 'Add Partner';
+  document.getElementById('savePartnerBtn').textContent = '➕ Add';
+  ['ap_name','ap_role','ap_email','ap_phone'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('apError').textContent = '';
+  openModal('addPartnerModal');
+}
+function openEditPartnerModal(idx) {
+  editingPartnerId = idx;
+  const p = db.partners[idx];
+  document.getElementById('partnerModalTitle').textContent = 'Edit Partner';
+  document.getElementById('savePartnerBtn').textContent = '💾 Save';
+  document.getElementById('ap_name').value = p.name;
+  document.getElementById('ap_role').value = p.role || '';
+  document.getElementById('ap_email').value = p.email || '';
+  document.getElementById('ap_phone').value = p.phone || '';
+  document.getElementById('apError').textContent = '';
+  openModal('addPartnerModal');
+}
+function savePartner() {
+  const name = document.getElementById('ap_name').value.trim();
+  if (!name) { document.getElementById('apError').textContent = 'Name is required.'; return; }
+  const p = { name, role: document.getElementById('ap_role').value.trim(), email: document.getElementById('ap_email').value.trim(), phone: document.getElementById('ap_phone').value.trim() };
+  if (editingPartnerId !== null) { db.partners[editingPartnerId] = p; showToast('Partner updated'); }
+  else { db.partners.push(p); showToast('Partner added'); }
+  saveDB(); renderTeams(); closeModal('addPartnerModal');
+}
+function deletePartner(idx) {
+  if (!confirm('Remove this partner?')) return;
+  db.partners.splice(idx, 1);
+  saveDB(); renderTeams(); showToast('Partner removed');
+}
+
+// --- Teams ---
+function openAddTeamModal() {
+  editingTeamId = null;
+  document.getElementById('teamModalTitle').textContent = 'Add Team';
+  document.getElementById('saveTeamBtn').textContent = '➕ Add Team';
+  ['at_name','at_leader','at_leader_email'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('atError').textContent = '';
+  openModal('addTeamModal');
+}
+function openEditTeamModal(id) {
+  editingTeamId = id;
+  const t = db.teams.find(x => x.id === id);
+  document.getElementById('teamModalTitle').textContent = 'Edit Team';
+  document.getElementById('saveTeamBtn').textContent = '💾 Save';
+  document.getElementById('at_name').value = t.name;
+  document.getElementById('at_leader').value = t.leader;
+  document.getElementById('at_leader_email').value = t.leaderEmail || '';
+  document.getElementById('atError').textContent = '';
+  openModal('addTeamModal');
+}
+function saveTeam() {
+  const name = document.getElementById('at_name').value.trim();
+  const leader = document.getElementById('at_leader').value.trim();
+  if (!name || !leader) { document.getElementById('atError').textContent = 'Team name and leader are required.'; return; }
+  const leaderEmail = document.getElementById('at_leader_email').value.trim();
+  if (editingTeamId !== null) {
+    const t = db.teams.find(x => x.id === editingTeamId);
+    const oldName = t.name;
+    t.name = name; t.leader = leader; t.leaderEmail = leaderEmail;
+    // Update clients assigned to old team name
+    if (oldName !== name) db.clients.forEach(c => { if (c.team === oldName) c.team = name; });
+    showToast('Team updated');
+  } else {
+    db.teams.push({ id: Date.now(), name, leader, leaderEmail, members: [] });
+    showToast('Team added');
+  }
+  saveDB(); renderTeams(); closeModal('addTeamModal');
+}
+function deleteTeam(id) {
+  if (!confirm('Delete this team? Clients assigned will have no team.')) return;
+  const t = db.teams.find(x => x.id === id);
+  if (t) db.clients.forEach(c => { if (c.team === t.name) c.team = ''; });
+  db.teams = db.teams.filter(x => x.id !== id);
+  saveDB(); renderTeams(); showToast('Team deleted');
+}
+
+// --- Members ---
+function openAddMemberModal(teamId) {
+  editingMemberTeamId = teamId; editingMemberIdx = null;
+  document.getElementById('memberModalTitle').textContent = 'Add Team Member';
+  document.getElementById('saveMemberBtn').textContent = '➕ Add';
+  ['am_name','am_role','am_email'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('amError').textContent = '';
+  openModal('addMemberModal');
+}
+function openEditMemberModal(teamId, idx) {
+  editingMemberTeamId = teamId; editingMemberIdx = idx;
+  const t = db.teams.find(x => x.id === teamId);
+  const m = t.members[idx];
+  document.getElementById('memberModalTitle').textContent = 'Edit Member';
+  document.getElementById('saveMemberBtn').textContent = '💾 Save';
+  document.getElementById('am_name').value = m.name;
+  document.getElementById('am_role').value = m.role || '';
+  document.getElementById('am_email').value = m.email || '';
+  document.getElementById('amError').textContent = '';
+  openModal('addMemberModal');
+}
+function saveMember() {
+  const name = document.getElementById('am_name').value.trim();
+  if (!name) { document.getElementById('amError').textContent = 'Name is required.'; return; }
+  const m = { name, role: document.getElementById('am_role').value.trim(), email: document.getElementById('am_email').value.trim() };
+  const t = db.teams.find(x => x.id === editingMemberTeamId);
+  if (editingMemberIdx !== null) { t.members[editingMemberIdx] = m; showToast('Member updated'); }
+  else { t.members.push(m); showToast('Member added'); }
+  saveDB(); renderTeams(); closeModal('addMemberModal');
+}
+function deleteMember(teamId, idx) {
+  if (!confirm('Remove this member?')) return;
+  const t = db.teams.find(x => x.id === teamId);
+  t.members.splice(idx, 1);
+  saveDB(); renderTeams(); showToast('Member removed');
+}
+
+// =====================================================
+//  MODAL TAB SWITCHING & PW VISIBILITY
+// =====================================================
+function switchModalTab(tabId, clickedBtn) {
+  const modal = clickedBtn ? clickedBtn.closest('.modal') : document.getElementById('clientDetailModal').querySelector('.modal');
+  if (!modal) return;
+  modal.querySelectorAll('.modal-tab-pane').forEach(p => p.classList.remove('active'));
+  modal.querySelectorAll('.modal-tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  if (clickedBtn) clickedBtn.classList.add('active');
+  // Auto-render audit log when that tab is opened
+  if (tabId === 'tab-audit' && editingClientId) renderAuditLog(editingClientId);
+}
+
+function togglePwVis(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+  else { inp.type = 'password'; btn.textContent = '👁'; }
+}
+
+// =====================================================
+//  MODAL HELPERS
+// =====================================================
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if(e.target===o) o.classList.remove('open'); });
+});
+
+// =====================================================
+//  TOAST
+// =====================================================
+let toastTimer;
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.display='block';
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.style.display='none',2800);
+}
+
+// =====================================================
+//  INIT
+// =====================================================
+window.onload = function() { renderLoginUsers(); };
+</script>
+</body>
+</html>
